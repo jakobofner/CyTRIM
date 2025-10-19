@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QGroupBox, QLabel, QLineEdit, QPushButton, QProgressBar,
     QTextEdit, QTabWidget, QGridLayout, QDoubleSpinBox, QSpinBox,
-    QFileDialog, QMessageBox
+    QFileDialog, QMessageBox, QCheckBox
 )
 from PyQt6.QtCore import QThread, pyqtSignal, Qt
 from PyQt6.QtGui import QFont
@@ -20,7 +20,10 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from pytrim.simulation import TRIMSimulation, SimulationParameters, is_using_cython
+from pytrim.simulation import (
+    TRIMSimulation, SimulationParameters, 
+    is_using_cython, is_cython_available, set_use_cython
+)
 
 
 class SimulationThread(QThread):
@@ -351,23 +354,35 @@ class MainWindow(QMainWindow):
         perf_group = QGroupBox("Performance")
         perf_layout = QVBoxLayout()
         
-        # Check if Cython is being used
-        using_cython = is_using_cython()
-        if using_cython:
-            perf_icon = "⚡"
-            perf_text = "Cython aktiviert"
-            perf_detail = "~6.4x schneller"
-            perf_color = "#2ecc71"  # Grün
-        else:
-            perf_icon = "🐍"
-            perf_text = "Python Fallback"
-            perf_detail = "Für mehr Speed: ./build_cython.sh"
-            perf_color = "#f39c12"  # Orange
-        
-        self.perf_label = QLabel(f"{perf_icon} <b>{perf_text}</b><br><small>{perf_detail}</small>")
-        self.perf_label.setStyleSheet(f"color: {perf_color}; padding: 5px;")
+        # Status label
+        self.perf_label = QLabel()
         self.perf_label.setWordWrap(True)
         perf_layout.addWidget(self.perf_label)
+        
+        # Toggle checkbox (only if Cython is available)
+        if is_cython_available():
+            self.cython_toggle = QCheckBox("Cython verwenden")
+            self.cython_toggle.setChecked(is_using_cython())
+            self.cython_toggle.stateChanged.connect(self.toggle_cython)
+            self.cython_toggle.setToolTip(
+                "Aktiviert/Deaktiviert Cython-optimierte Module.\n"
+                "Cython: ~6.4x schnellere Simulation\n"
+                "Python: Langsamer, aber hilfreich für Debugging"
+            )
+            perf_layout.addWidget(self.cython_toggle)
+        else:
+            self.cython_toggle = None
+            # Show hint to build Cython
+            hint_label = QLabel(
+                "<small><i>Cython nicht verfügbar.<br>"
+                "Führe './build_cython.sh' aus<br>"
+                "für 6.4x Speedup!</i></small>"
+            )
+            hint_label.setWordWrap(True)
+            perf_layout.addWidget(hint_label)
+        
+        # Update performance label
+        self.update_performance_label()
         
         perf_group.setLayout(perf_layout)
         left_panel.addWidget(perf_group)
@@ -416,6 +431,73 @@ class MainWindow(QMainWindow):
         right_panel.addWidget(self.tab_widget)
         main_layout.addLayout(right_panel, 2)
         
+    def update_performance_label(self):
+        """Update the performance status label."""
+        using_cython = is_using_cython()
+        if using_cython:
+            perf_icon = "⚡"
+            perf_text = "Cython aktiviert"
+            perf_detail = "~6.4x schneller"
+            perf_color = "#2ecc71"  # Grün
+        else:
+            perf_icon = "🐍"
+            perf_text = "Python Modus"
+            if is_cython_available():
+                perf_detail = "Cython verfügbar, aber deaktiviert"
+            else:
+                perf_detail = "Für mehr Speed: ./build_cython.sh"
+            perf_color = "#f39c12"  # Orange
+        
+        self.perf_label.setText(
+            f"{perf_icon} <b>{perf_text}</b><br><small>{perf_detail}</small>"
+        )
+        self.perf_label.setStyleSheet(f"color: {perf_color}; padding: 5px;")
+    
+    def toggle_cython(self, state):
+        """Toggle between Cython and Python modes."""
+        use_cython = (state == Qt.CheckState.Checked.value)
+        
+        # Show warning about reload
+        if hasattr(self, 'results') and self.results is not None:
+            reply = QMessageBox.question(
+                self,
+                "Module neu laden?",
+                "Das Umschalten zwischen Cython und Python erfordert das Neuladen "
+                "der Simulationsmodule. Möchten Sie fortfahren?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.No:
+                # Revert checkbox
+                self.cython_toggle.blockSignals(True)
+                self.cython_toggle.setChecked(not use_cython)
+                self.cython_toggle.blockSignals(False)
+                return
+        
+        # Try to switch
+        success = set_use_cython(use_cython)
+        
+        if success:
+            self.update_performance_label()
+            mode = "Cython" if use_cython else "Python"
+            QMessageBox.information(
+                self,
+                "Modus gewechselt",
+                f"Erfolgreich zu {mode}-Modus gewechselt!\n\n"
+                f"Neue Simulationen werden {mode}-Module verwenden."
+            )
+        else:
+            # Failed to switch (probably Cython not available)
+            self.cython_toggle.blockSignals(True)
+            self.cython_toggle.setChecked(False)
+            self.cython_toggle.blockSignals(False)
+            self.update_performance_label()
+            QMessageBox.warning(
+                self,
+                "Wechsel fehlgeschlagen",
+                "Cython-Module konnten nicht geladen werden.\n"
+                "Führe './build_cython.sh' aus um sie zu kompilieren."
+            )
+        
     def start_simulation(self):
         """Start the simulation."""
         # Get parameters
@@ -446,6 +528,7 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(True)
         self.param_widget.set_enabled(False)
         self.export_button.setEnabled(False)
+        self.cython_toggle.setEnabled(False)  # Disable during simulation
         self.progress_bar.setValue(0)
         self.progress_label.setText("Simulation läuft...")
         self.results_text.clear()
@@ -483,6 +566,7 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
         self.param_widget.set_enabled(True)
         self.export_button.setEnabled(True)
+        self.cython_toggle.setEnabled(True)  # Re-enable after simulation
         self.progress_bar.setValue(100)
         self.progress_label.setText("Simulation abgeschlossen!")
         
@@ -509,6 +593,7 @@ class MainWindow(QMainWindow):
         self.start_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.param_widget.set_enabled(True)
+        self.cython_toggle.setEnabled(True)  # Re-enable after error
         self.progress_label.setText("Fehler!")
         
         QMessageBox.critical(self, "Simulationsfehler", 

@@ -10,23 +10,94 @@ from math import sqrt
 import time
 import numpy as np
 
-# Try to import Cython modules first, fall back to Python
+# Module references that can be switched at runtime
+select_recoil = None
+scatter = None
+estop = None
+geometry = None
+trajectory = None
+
+_using_cython = False
+_cython_available = False
+_force_python = False
+
+# Check if Cython modules are available
 try:
-    from cytrim import select_recoil
-    from cytrim import scatter
-    from cytrim import estop
-    from cytrim import geometry
-    from cytrim import trajectory
-    _using_cython = True
-    print("Using Cython-optimized modules for faster simulation!")
+    import cytrim.select_recoil
+    import cytrim.scatter
+    import cytrim.estop
+    import cytrim.geometry
+    import cytrim.trajectory
+    _cython_available = True
 except ImportError:
-    from . import select_recoil
-    from . import scatter
-    from . import estop
-    from . import geometry
-    from . import trajectory
+    _cython_available = False
+
+def _load_cython_modules():
+    """Load Cython-optimized modules."""
+    global select_recoil, scatter, estop, geometry, trajectory, _using_cython
+    from cytrim import select_recoil as sr
+    from cytrim import scatter as sc
+    from cytrim import estop as es
+    from cytrim import geometry as geo
+    from cytrim import trajectory as traj
+    select_recoil = sr
+    scatter = sc
+    estop = es
+    geometry = geo
+    trajectory = traj
+    _using_cython = True
+
+def _load_python_modules():
+    """Load pure Python modules."""
+    global select_recoil, scatter, estop, geometry, trajectory, _using_cython
+    from . import select_recoil as sr
+    from . import scatter as sc
+    from . import estop as es
+    from . import geometry as geo
+    from . import trajectory as traj
+    select_recoil = sr
+    scatter = sc
+    estop = es
+    geometry = geo
+    trajectory = traj
     _using_cython = False
-    print("Using pure Python modules (compile Cython for better performance)")
+
+def set_use_cython(use_cython):
+    """Enable or disable Cython modules.
+    
+    Parameters:
+        use_cython (bool): True to use Cython (if available), False for Python
+        
+    Returns:
+        bool: True if requested mode is now active, False if not possible
+    """
+    global _force_python
+    
+    if use_cython:
+        if _cython_available:
+            _force_python = False
+            _load_cython_modules()
+            print("✓ Switched to Cython-optimized modules")
+            return True
+        else:
+            print("✗ Cython modules not available - staying with Python")
+            return False
+    else:
+        _force_python = True
+        _load_python_modules()
+        print("✓ Switched to pure Python modules")
+        return True
+
+# Initialize with best available option
+if _cython_available and not _force_python:
+    _load_cython_modules()
+    print("Using Cython-optimized modules for faster simulation!")
+else:
+    _load_python_modules()
+    if not _cython_available:
+        print("Using pure Python modules (compile Cython for better performance)")
+    else:
+        print("Using pure Python modules (Cython disabled by user)")
 
 
 class SimulationParameters:
@@ -196,3 +267,12 @@ def is_using_cython():
         bool: True if using Cython, False if using pure Python
     """
     return _using_cython
+
+
+def is_cython_available():
+    """Check if Cython modules are available (even if not currently used).
+    
+    Returns:
+        bool: True if Cython modules can be loaded
+    """
+    return _cython_available

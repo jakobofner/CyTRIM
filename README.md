@@ -17,6 +17,8 @@ Eine einfache, gut lesbare Python-Referenzimplementierung von TRIM (Transport of
 - **Fortschrittsanzeige** während der Simulation
 - **Datenexport** für weitere Analysen
 - **Cython-Optimierung** für bis zu 6.4x schnellere Berechnungen
+- **Runtime-Umschaltung** zwischen Cython und Python ohne Neustart
+- **Performance-Anzeige** zeigt aktuellen Berechnungsmodus
 - **Automatischer Fallback** auf Pure Python wenn Cython nicht verfügbar
 - Vollständig in Python implementiert (keine Kompilation nötig für Grundfunktion)
 
@@ -136,10 +138,27 @@ Die GUI öffnet sich mit folgenden Bereichen:
 **Bedienung:**
 1. Parameter nach Bedarf anpassen
 2. Performance-Status prüfen (⚡ Cython oder 🐍 Python)
-3. "Simulation starten" klicken
-4. Fortschritt in Echtzeit verfolgen
-5. Ergebnisse in Tabs anschauen (inkl. Performance-Info)
-6. Optional: "Ergebnisse exportieren" für Textdatei mit Daten
+3. Optional: Cython-Toggle verwenden um zwischen Modi zu wechseln
+4. "Simulation starten" klicken
+5. Fortschritt in Echtzeit verfolgen
+6. Ergebnisse in Tabs anschauen (inkl. Performance-Info)
+7. Optional: "Ergebnisse exportieren" für Textdatei mit Daten
+
+### Cython-Toggle Feature
+
+**Zur Laufzeit zwischen Cython und Python wechseln:**
+
+- Im Performance-Bereich der GUI finden Sie eine Checkbox "Cython verwenden"
+- ⚡ **Cython-Modus** (Grün): ~6.4x schneller, ideal für große Simulationen
+- 🐍 **Python-Modus** (Orange): Langsamer, aber besser für Debugging
+
+**Wann welchen Modus verwenden?**
+- **Cython** ✓ für: Produktionsläufe, große Simulationen (>100 Ionen), Parameterstudien
+- **Python** ✓ für: Debugging, Entwicklung, kleine Tests (<50 Ionen)
+
+Das Umschalten lädt die Module zur Laufzeit neu - keine Neustart erforderlich!
+
+Weitere Details: Siehe [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md)
 
 ### Kommandozeilen-Version (Legacy)
 
@@ -241,7 +260,42 @@ python benchmark.py 1000
 
 # Vergleich Python vs Cython
 python compare_performance.py
+
+# Test des Cython-Toggle Features
+python test_toggle.py
 ```
+
+### Programmatische Steuerung
+
+Das Cython-Toggle Feature kann auch programmatisch verwendet werden:
+
+```python
+from pytrim import (
+    is_cython_available,
+    is_using_cython, 
+    set_use_cython,
+    TRIMSimulation,
+    SimulationParameters
+)
+
+# Prüfe Cython-Verfügbarkeit
+if is_cython_available():
+    print("Cython-Module verfügbar!")
+    
+# Wechsle zu Cython für Performance
+set_use_cython(True)
+
+# Führe Simulation aus
+params = SimulationParameters(n_ions=1000)
+sim = TRIMSimulation(params)
+results = sim.run()
+
+# Prüfe verwendeten Modus
+mode = "Cython" if is_using_cython() else "Python"
+print(f"Simulation lief mit: {mode}")
+```
+
+Weitere Details: [API.md](API.md) und [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md)
 
 ## Annahmen und Grenzen
 
