@@ -130,3 +130,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Cython
+cytrim/*.c
+cytrim/*.html
+.venv/
