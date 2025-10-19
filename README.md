@@ -135,10 +135,11 @@ Die GUI öffnet sich mit folgenden Bereichen:
 
 **Bedienung:**
 1. Parameter nach Bedarf anpassen
-2. "Simulation starten" klicken
-3. Fortschritt in Echtzeit verfolgen
-4. Ergebnisse in Tabs anschauen
-5. Optional: "Ergebnisse exportieren" für Textdatei mit Daten
+2. Performance-Status prüfen (⚡ Cython oder 🐍 Python)
+3. "Simulation starten" klicken
+4. Fortschritt in Echtzeit verfolgen
+5. Ergebnisse in Tabs anschauen (inkl. Performance-Info)
+6. Optional: "Ergebnisse exportieren" für Textdatei mit Daten
 
 ### Kommandozeilen-Version (Legacy)
 

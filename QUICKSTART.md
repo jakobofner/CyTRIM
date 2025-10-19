@@ -40,19 +40,18 @@ python pytrim_gui.py
    - Projektil-Eigenschaften (Z, Masse, Energie)
    - Target-Eigenschaften (Z, Masse, Dichte, Geometrie)
    
-2. **Simulation starten**
-   - Button "Simulation starten" klicken
-   - Fortschritt wird angezeigt
-   - Simulation kann mit "Stoppen" abgebrochen werden
+2. **Performance-Status prüfen** (linkes Panel)
+   - ⚡ **Cython aktiviert**: ~6.4x schnellere Simulation
+   - 🐍 **Python Fallback**: Normale Geschwindigkeit (falls Cython nicht kompiliert)
+   
+2. **"Simulation starten"** klicken
 
-3. **Ergebnisse ansehen**
+3. **Ergebnisse in Tabs ansehen**:
    - **Tab "Trajektorien"**: Visualisierung der Ion-Pfade (erste 10 Ionen)
    - **Tab "Stopptiefe-Verteilung"**: Histogramm aller finalen Positionen
-   - **Tab "Ergebnisse"**: Statistische Auswertung
+   - **Tab "Ergebnisse"**: Statistiken (Mittelwert, Standardabweichung, Performance-Info)
 
-4. **Daten exportieren**
-   - Button "Ergebnisse exportieren"
-   - Textdatei mit allen Stopptiefen
+4. **Optional**: "Ergebnisse exportieren" für Textdatei
 
 ## Beispiel-Szenarien
 

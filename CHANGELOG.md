@@ -1,5 +1,26 @@
 # Changelog - PyTRIM GUI Version
 
+## Version 1.1.1 - Performance-Statusanzeige
+
+### ✨ Neue Features
+- **Performance-Statusanzeige in GUI**
+  - Zeigt ob Cython oder Python verwendet wird
+  - ⚡ Grüne Anzeige bei aktivem Cython (~6.4x schneller)
+  - 🐍 Orange Anzeige bei Python Fallback mit Build-Hinweis
+  - Durchsatz-Anzeige in Ergebnissen (Ionen/Sekunde)
+  
+### 📦 Neue Dateien
+```
+check_performance.py          # Performance-Status-Check
+GUI_LAYOUT.md                 # Visuelle Dokumentation der GUI
+```
+
+### 🎨 GUI-Verbesserungen
+- Performance-Box im linken Panel
+- Farbcodierung: Grün (Cython) / Orange (Python)
+- Performance-Info in Ergebnistabelle
+- Durchsatz-Anzeige nach Simulation
+
 ## Version 1.1.0 - Cython-Optimierung
 
 ### 🚀 Performance-Verbesserungen

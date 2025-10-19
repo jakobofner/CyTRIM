@@ -20,7 +20,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameters, is_using_cython
 
 
 class SimulationThread(QThread):
@@ -347,6 +347,31 @@ class MainWindow(QMainWindow):
         progress_group.setLayout(progress_layout)
         left_panel.addWidget(progress_group)
         
+        # Performance info
+        perf_group = QGroupBox("Performance")
+        perf_layout = QVBoxLayout()
+        
+        # Check if Cython is being used
+        using_cython = is_using_cython()
+        if using_cython:
+            perf_icon = "⚡"
+            perf_text = "Cython aktiviert"
+            perf_detail = "~6.4x schneller"
+            perf_color = "#2ecc71"  # Grün
+        else:
+            perf_icon = "🐍"
+            perf_text = "Python Fallback"
+            perf_detail = "Für mehr Speed: ./build_cython.sh"
+            perf_color = "#f39c12"  # Orange
+        
+        self.perf_label = QLabel(f"{perf_icon} <b>{perf_text}</b><br><small>{perf_detail}</small>")
+        self.perf_label.setStyleSheet(f"color: {perf_color}; padding: 5px;")
+        self.perf_label.setWordWrap(True)
+        perf_layout.addWidget(self.perf_label)
+        
+        perf_group.setLayout(perf_layout)
+        left_panel.addWidget(perf_group)
+        
         left_panel.addStretch()
         main_layout.addLayout(left_panel, 1)
         
@@ -461,8 +486,14 @@ class MainWindow(QMainWindow):
         self.progress_bar.setValue(100)
         self.progress_label.setText("Simulation abgeschlossen!")
         
-        # Display results
-        self.results_text.setText(results.get_summary())
+        # Display results with performance info
+        result_text = results.get_summary()
+        result_text += "\n" + "=" * 50 + "\n"
+        result_text += f"Performance-Modus: {'Cython (optimiert)' if is_using_cython() else 'Python (Fallback)'}\n"
+        if results.simulation_time > 0 and results.total_ions > 0:
+            ions_per_sec = results.total_ions / results.simulation_time
+            result_text += f"Durchsatz: {ions_per_sec:.1f} Ionen/Sekunde\n"
+        self.results_text.setText(result_text)
         
         # Plot results
         params = self.param_widget.get_parameters()
