@@ -107,9 +107,18 @@ class SimulationParameters:
         # Number of projectiles to simulate
         self.nion = 1000
         
-        # Target geometry (A)
+        # Target geometry (A) - Simple planar geometry (backward compatible)
         self.zmin = 0.0
         self.zmax = 4000.0
+        
+        # Advanced 3D geometry settings
+        self.geometry_type = 'planar'  # 'planar', 'box', 'cylinder', 'sphere', 'multilayer'
+        self.geometry_params = {}  # Additional parameters for complex geometries
+        # Examples:
+        # For 'box': {'x_min': -500, 'x_max': 500, 'y_min': -500, 'y_max': 500, 'z_min': 0, 'z_max': 4000}
+        # For 'cylinder': {'radius': 300, 'z_min': 0, 'z_max': 1000, 'center_x': 0, 'center_y': 0}
+        # For 'sphere': {'radius': 500, 'center_x': 0, 'center_y': 0, 'center_z': 500}
+        # For 'multilayer': {'layer_z_positions': [0, 100, 300, 500]}
         
         # Projectile properties
         self.z1 = 5              # atomic number
@@ -153,14 +162,28 @@ class SimulationResults:
         self.stopped_depths = []  # List of z-coordinates where ions stopped
         self.trajectories = []    # List of trajectories (positions)
         
+        # 3D distribution data
+        self.stopped_positions = []  # List of (x, y, z) tuples for stopped ions
+        self.mean_x = 0.0
+        self.mean_y = 0.0
+        self.std_x = 0.0
+        self.std_y = 0.0
+        self.mean_r = 0.0  # Radial mean (distance from z-axis)
+        self.std_r = 0.0   # Radial standard deviation
+        
     def get_summary(self):
         """Get a summary string of the results."""
         summary = []
         summary.append(f"Number of ions stopped inside the target: {self.count_inside} / {self.total_ions}")
         if self.count_inside > 0:
-            summary.append(f"Mean penetration depth: {self.mean_z:.2f} A")
-            summary.append(f"Standard deviation: {self.std_z:.2f} A")
-        summary.append(f"Simulation time: {self.simulation_time:.2f} seconds")
+            summary.append(f"\n3D Distribution Statistics:")
+            summary.append(f"  Mean position (x, y, z): ({self.mean_x:.2f}, {self.mean_y:.2f}, {self.mean_z:.2f}) A")
+            summary.append(f"  Std deviation (x, y, z): ({self.std_x:.2f}, {self.std_y:.2f}, {self.std_z:.2f}) A")
+            summary.append(f"  Radial spread (mean ± std): {self.mean_r:.2f} ± {self.std_r:.2f} A")
+            summary.append(f"\nLegacy (z-only) Statistics:")
+            summary.append(f"  Mean penetration depth: {self.mean_z:.2f} A")
+            summary.append(f"  Standard deviation: {self.std_z:.2f} A")
+        summary.append(f"\nSimulation time: {self.simulation_time:.2f} seconds")
         return "\n".join(summary)
 
 
@@ -190,6 +213,30 @@ class TRIMSimulation:
         """Request simulation to stop."""
         self._should_stop = True
         
+    def _create_geometry(self):
+        """Create geometry object based on parameters."""
+        try:
+            # Try to use geometry3d module (new system)
+            if _using_cython:
+                from cytrim import geometry3d
+            else:
+                from . import geometry3d
+            
+            # Create geometry based on type
+            if self.params.geometry_type == 'planar':
+                # Use simple planar geometry (backward compatible)
+                return geometry3d.create_geometry('planar',
+                    z_min=self.params.zmin, z_max=self.params.zmax)
+            else:
+                # Use advanced geometry with custom parameters
+                return geometry3d.create_geometry(
+                    self.params.geometry_type, **self.params.geometry_params)
+        except ImportError:
+            # Fallback: use old geometry module with simple planar setup
+            print("Warning: geometry3d not available, using legacy planar geometry")
+            geometry.setup(self.params.zmin, self.params.zmax)
+            return None
+    
     def setup(self):
         """Setup all modules with current parameters."""
         select_recoil.setup(self.params.density)
@@ -197,7 +244,23 @@ class TRIMSimulation:
                      self.params.z2, self.params.m2)
         estop.setup(self.params.corr_lindhard, self.params.z1, 
                    self.params.m1, self.params.z2, self.params.density)
-        geometry.setup(self.params.zmin, self.params.zmax)
+        
+        # Setup geometry (new or legacy)
+        self.geometry_obj = self._create_geometry()
+        if self.geometry_obj is None:
+            # Legacy mode: geometry.setup() already called in _create_geometry
+            pass
+        else:
+            # New mode: setup geometry3d module with object
+            try:
+                if _using_cython:
+                    from cytrim import geometry3d
+                else:
+                    from . import geometry3d
+                geometry3d.setup_geometry(self.geometry_obj)
+            except ImportError:
+                pass
+        
         trajectory.setup()
         
     def run(self, record_trajectories=False, max_trajectories=10):
@@ -239,6 +302,20 @@ class TRIMSimulation:
                 self.results.std_z += pos[2]**2
                 self.results.stopped_depths.append(pos[2])
                 
+                # Store full 3D position for advanced analysis
+                self.results.stopped_positions.append((pos[0], pos[1], pos[2]))
+                
+                # Accumulate for 3D statistics
+                self.results.mean_x += pos[0]
+                self.results.mean_y += pos[1]
+                self.results.std_x += pos[0]**2
+                self.results.std_y += pos[1]**2
+                
+                # Radial distance from z-axis
+                r = sqrt(pos[0]**2 + pos[1]**2)
+                self.results.mean_r += r
+                self.results.std_r += r**2
+                
             if record_trajectories and i < max_trajectories and traj is not None:
                 self.results.trajectories.append(traj)
             
@@ -248,11 +325,21 @@ class TRIMSimulation:
         
         # Calculate statistics
         if self.results.count_inside > 0:
-            self.results.mean_z /= self.results.count_inside
-            self.results.std_z = sqrt(
-                self.results.std_z / self.results.count_inside - 
-                self.results.mean_z**2
-            )
+            n = self.results.count_inside
+            
+            # Z statistics (backward compatible)
+            self.results.mean_z /= n
+            self.results.std_z = sqrt(self.results.std_z / n - self.results.mean_z**2)
+            
+            # X, Y statistics
+            self.results.mean_x /= n
+            self.results.mean_y /= n
+            self.results.std_x = sqrt(self.results.std_x / n - self.results.mean_x**2)
+            self.results.std_y = sqrt(self.results.std_y / n - self.results.mean_y**2)
+            
+            # Radial statistics
+            self.results.mean_r /= n
+            self.results.std_r = sqrt(self.results.std_r / n - self.results.mean_r**2)
         
         end_time = time.time()
         self.results.simulation_time = end_time - start_time

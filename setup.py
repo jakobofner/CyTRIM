@@ -52,6 +52,13 @@ extensions = [
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
     ),
+    Extension(
+        "cytrim.geometry3d",
+        ["cytrim/geometry3d.pyx"],
+        include_dirs=[np.get_include()],
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args,
+    ),
 ]
 
 setup(
