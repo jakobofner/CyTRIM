@@ -70,8 +70,8 @@ def trajectory_with_path(pos_init, dir_init, e_init, record_path=False):
         float: final energy of the projectile (eV)
         bool: True if projectile is stopped inside the target, 
             False otherwise
-        list or None: list of positions along the trajectory if record_path
-            is True, None otherwise
+        list or None: list of (x, y, z, energy) tuples along the trajectory 
+            if record_path is True, None otherwise
     """
     import numpy as np
     
@@ -80,7 +80,8 @@ def trajectory_with_path(pos_init, dir_init, e_init, record_path=False):
     e = e_init
     is_inside = True
     
-    path = [pos.copy()] if record_path else None
+    # Store position AND energy
+    path = [(pos[0], pos[1], pos[2], e)] if record_path else None
 
     while e > EMIN:
         free_path, p, dirp, _ = get_recoil_position(pos, dir)
@@ -89,7 +90,7 @@ def trajectory_with_path(pos_init, dir_init, e_init, record_path=False):
         pos += free_path * dir
         
         if record_path:
-            path.append(pos.copy())
+            path.append((pos[0], pos[1], pos[2], e))
         
         if not is_inside_target(pos):
             is_inside = False

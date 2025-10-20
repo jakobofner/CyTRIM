@@ -62,7 +62,7 @@ class ParameterWidget(QGroupBox):
     """Widget for entering simulation parameters."""
     
     def __init__(self, parent=None):
-        super().__init__("Simulationsparameter", parent)
+        super().__init__("Simulation Parameters", parent)
         self._init_ui()
         
     def _init_ui(self):
@@ -70,7 +70,7 @@ class ParameterWidget(QGroupBox):
         layout = QGridLayout()
         
         # Number of ions
-        layout.addWidget(QLabel("Anzahl Ionen:"), 0, 0)
+        layout.addWidget(QLabel("Number of Ions:"), 0, 0)
         self.nion_spin = QSpinBox()
         self.nion_spin.setRange(1, 1000000)
         self.nion_spin.setValue(1000)
@@ -93,13 +93,13 @@ class ParameterWidget(QGroupBox):
         layout.addWidget(self.zmax_spin, 2, 1)
         
         # Projectile
-        layout.addWidget(QLabel("Projektil Z:"), 3, 0)
+        layout.addWidget(QLabel("Projectile Z:"), 3, 0)
         self.z1_spin = QSpinBox()
         self.z1_spin.setRange(1, 118)
         self.z1_spin.setValue(5)
         layout.addWidget(self.z1_spin, 3, 1)
         
-        layout.addWidget(QLabel("Projektil Masse (amu):"), 4, 0)
+        layout.addWidget(QLabel("Projectile Mass (amu):"), 4, 0)
         self.m1_spin = QDoubleSpinBox()
         self.m1_spin.setRange(1.0, 300.0)
         self.m1_spin.setValue(11.009)
@@ -113,14 +113,14 @@ class ParameterWidget(QGroupBox):
         self.z2_spin.setValue(14)
         layout.addWidget(self.z2_spin, 5, 1)
         
-        layout.addWidget(QLabel("Target Masse (amu):"), 6, 0)
+        layout.addWidget(QLabel("Target Mass (amu):"), 6, 0)
         self.m2_spin = QDoubleSpinBox()
         self.m2_spin.setRange(1.0, 300.0)
         self.m2_spin.setValue(28.086)
         self.m2_spin.setDecimals(3)
         layout.addWidget(self.m2_spin, 6, 1)
         
-        layout.addWidget(QLabel("Dichte (Atome/Å³):"), 7, 0)
+        layout.addWidget(QLabel("Density (atoms/Å³):"), 7, 0)
         self.density_spin = QDoubleSpinBox()
         self.density_spin.setRange(0.001, 1.0)
         self.density_spin.setValue(0.04994)
@@ -129,7 +129,7 @@ class ParameterWidget(QGroupBox):
         layout.addWidget(self.density_spin, 7, 1)
         
         # Stopping power correction
-        layout.addWidget(QLabel("Lindhard Korrektur:"), 8, 0)
+        layout.addWidget(QLabel("Lindhard Correction:"), 8, 0)
         self.corr_spin = QDoubleSpinBox()
         self.corr_spin.setRange(0.1, 10.0)
         self.corr_spin.setValue(1.5)
@@ -138,7 +138,7 @@ class ParameterWidget(QGroupBox):
         layout.addWidget(self.corr_spin, 8, 1)
         
         # Initial energy
-        layout.addWidget(QLabel("Anfangsenergie (eV):"), 9, 0)
+        layout.addWidget(QLabel("Initial Energy (eV):"), 9, 0)
         self.e_init_spin = QDoubleSpinBox()
         self.e_init_spin.setRange(100, 1000000)
         self.e_init_spin.setValue(50000.0)
@@ -169,7 +169,7 @@ class ParameterWidget(QGroupBox):
         layout.addLayout(pos_layout, 10, 1)
         
         # Initial direction
-        layout.addWidget(QLabel("Richtung (Einheitsvektor):"), 11, 0)
+        layout.addWidget(QLabel("Direction (Unit Vector):"), 11, 0)
         dir_layout = QHBoxLayout()
         self.dir_x_spin = QDoubleSpinBox()
         self.dir_x_spin.setRange(-1, 1)
@@ -268,10 +268,10 @@ class PlotCanvas(FigureCanvas):
         ax.set_xlabel('z (Å)')
         if projection == 'xz':
             ax.set_ylabel('x (Å)')
-            ax.set_title('Ion Trajektorien (x-z Projektion)')
+            ax.set_title('Ion Trajectories (x-z Projection)')
         elif projection == 'yz':
             ax.set_ylabel('y (Å)')
-            ax.set_title('Ion Trajektorien (y-z Projektion)')
+            ax.set_title('Ion Trajectories (y-z Projection)')
         ax.legend()
         ax.grid(True, alpha=0.3)
         self.draw()
@@ -289,13 +289,13 @@ class PlotCanvas(FigureCanvas):
         if len(depths) > 0:
             ax.hist(depths, bins=50, alpha=0.7, edgecolor='black')
             ax.axvline(x=np.mean(depths), color='r', linestyle='--', 
-                      label=f'Mittelwert: {np.mean(depths):.1f} Å')
+                      label=f'Mean: {np.mean(depths):.1f} Å')
             ax.axvline(x=zmin, color='gray', linestyle=':', alpha=0.5)
             ax.axvline(x=zmax, color='gray', linestyle=':', alpha=0.5)
         
-        ax.set_xlabel('Stopptiefe z (Å)')
-        ax.set_ylabel('Häufigkeit')
-        ax.set_title('Verteilung der Stopptiefen')
+        ax.set_xlabel('Stopping Depth z (Å)')
+        ax.set_ylabel('Frequency')
+        ax.set_title('Distribution of Stopping Depths')
         ax.legend()
         ax.grid(True, alpha=0.3)
         self.draw()
@@ -476,13 +476,13 @@ class PlotCanvas3D(FigureCanvas):
         if len(depths) > 0:
             ax.hist(depths, bins=50, alpha=0.7, edgecolor='black')
             ax.axvline(x=np.mean(depths), color='r', linestyle='--', 
-                      label=f'Mittelwert: {np.mean(depths):.1f} Å')
+                      label=f'Mean: {np.mean(depths):.1f} Å')
             ax.axvline(x=zmin, color='g', linestyle=':', linewidth=2)
             ax.axvline(x=zmax, color='g', linestyle=':', linewidth=2)
         
-        ax.set_xlabel('Stopptiefe z (Å)')
-        ax.set_ylabel('Anzahl Ionen')
-        ax.set_title('Verteilung der Stopptiefen')
+        ax.set_xlabel('Stopping Depth z (Å)')
+        ax.set_ylabel('Number of Ions')
+        ax.set_title('Distribution of Stopping Depths')
         ax.legend()
         ax.grid(True, alpha=0.3)
         self.draw()
@@ -519,19 +519,19 @@ class MainWindow(QMainWindow):
         left_panel.addWidget(self.param_widget)
         
         # Control buttons
-        control_group = QGroupBox("Steuerung")
+        control_group = QGroupBox("Control")
         control_layout = QVBoxLayout()
         
-        self.start_button = QPushButton("Simulation starten")
+        self.start_button = QPushButton("Start Simulation")
         self.start_button.clicked.connect(self.start_simulation)
         control_layout.addWidget(self.start_button)
         
-        self.stop_button = QPushButton("Stoppen")
+        self.stop_button = QPushButton("Stop")
         self.stop_button.clicked.connect(self.stop_simulation)
         self.stop_button.setEnabled(False)
         control_layout.addWidget(self.stop_button)
         
-        self.export_button = QPushButton("Ergebnisse exportieren")
+        self.export_button = QPushButton("Export Results")
         self.export_button.clicked.connect(self.export_results)
         self.export_button.setEnabled(False)
         control_layout.addWidget(self.export_button)
@@ -540,11 +540,11 @@ class MainWindow(QMainWindow):
         left_panel.addWidget(control_group)
         
         # Progress bar
-        progress_group = QGroupBox("Fortschritt")
+        progress_group = QGroupBox("Progress")
         progress_layout = QVBoxLayout()
         self.progress_bar = QProgressBar()
         progress_layout.addWidget(self.progress_bar)
-        self.progress_label = QLabel("Bereit")
+        self.progress_label = QLabel("Ready")
         progress_layout.addWidget(self.progress_label)
         progress_group.setLayout(progress_layout)
         left_panel.addWidget(progress_group)
@@ -560,22 +560,22 @@ class MainWindow(QMainWindow):
         
         # Toggle checkbox (only if Cython is available)
         if is_cython_available():
-            self.cython_toggle = QCheckBox("Cython verwenden")
+            self.cython_toggle = QCheckBox("Use Cython")
             self.cython_toggle.setChecked(is_using_cython())
             self.cython_toggle.stateChanged.connect(self.toggle_cython)
             self.cython_toggle.setToolTip(
-                "Aktiviert/Deaktiviert Cython-optimierte Module.\n"
-                "Cython: ~6.4x schnellere Simulation\n"
-                "Python: Langsamer, aber hilfreich für Debugging"
+                "Enable/Disable Cython-optimized modules.\n"
+                "Cython: ~6.4x faster simulation\n"
+                "Python: Slower, but helpful for debugging"
             )
             perf_layout.addWidget(self.cython_toggle)
         else:
             self.cython_toggle = None
             # Show hint to build Cython
             hint_label = QLabel(
-                "<small><i>Cython nicht verfügbar.<br>"
-                "Führe './build_cython.sh' aus<br>"
-                "für 6.4x Speedup!</i></small>"
+                "<small><i>Cython not available.<br>"
+                "Run './build_cython.sh'<br>"
+                "for 6.4x speedup!</i></small>"
             )
             hint_label.setWordWrap(True)
             perf_layout.addWidget(hint_label)
@@ -603,7 +603,7 @@ class MainWindow(QMainWindow):
         traj3d_layout.addWidget(self.traj3d_toolbar)
         traj3d_layout.addWidget(self.traj3d_canvas)
         traj3d_widget.setLayout(traj3d_layout)
-        self.tab_widget.addTab(traj3d_widget, "3D Trajektorien")
+        self.tab_widget.addTab(traj3d_widget, "3D Trajectories")
         
         # 2D Trajectory plot tab (x-z projection)
         traj2d_xz_widget = QWidget()
@@ -613,7 +613,7 @@ class MainWindow(QMainWindow):
         traj2d_xz_layout.addWidget(self.traj2d_xz_toolbar)
         traj2d_xz_layout.addWidget(self.traj2d_xz_canvas)
         traj2d_xz_widget.setLayout(traj2d_xz_layout)
-        self.tab_widget.addTab(traj2d_xz_widget, "2D Trajektorien (x-z)")
+        self.tab_widget.addTab(traj2d_xz_widget, "2D Trajectories (x-z)")
         
         # 2D Trajectory plot tab (y-z projection)
         traj2d_yz_widget = QWidget()
@@ -623,7 +623,7 @@ class MainWindow(QMainWindow):
         traj2d_yz_layout.addWidget(self.traj2d_yz_toolbar)
         traj2d_yz_layout.addWidget(self.traj2d_yz_canvas)
         traj2d_yz_widget.setLayout(traj2d_yz_layout)
-        self.tab_widget.addTab(traj2d_yz_widget, "2D Trajektorien (y-z)")
+        self.tab_widget.addTab(traj2d_yz_widget, "2D Trajectories (y-z)")
         
         # Depth histogram tab
         hist_widget = QWidget()
@@ -633,7 +633,7 @@ class MainWindow(QMainWindow):
         hist_layout.addWidget(self.hist_toolbar)
         hist_layout.addWidget(self.hist_canvas)
         hist_widget.setLayout(hist_layout)
-        self.tab_widget.addTab(hist_widget, "Stopptiefe-Verteilung")
+        self.tab_widget.addTab(hist_widget, "Stopping Depth Distribution")
         
         # Results tab
         results_widget = QWidget()
@@ -645,7 +645,7 @@ class MainWindow(QMainWindow):
         self.results_text.setFont(font)
         results_layout.addWidget(self.results_text)
         results_widget.setLayout(results_layout)
-        self.tab_widget.addTab(results_widget, "Ergebnisse")
+        self.tab_widget.addTab(results_widget, "Results")
         
         right_panel.addWidget(self.tab_widget)
         main_layout.addLayout(right_panel, 2)
@@ -657,14 +657,14 @@ class MainWindow(QMainWindow):
             perf_icon = "⚡"
             perf_text = "Cython aktiviert"
             perf_detail = "~6.4x schneller"
-            perf_color = "#2ecc71"  # Grün
+            perf_color = "#2ecc71"  # Green
         else:
             perf_icon = "🐍"
-            perf_text = "Python Modus"
+            perf_text = "Python Mode"
             if is_cython_available():
-                perf_detail = "Cython verfügbar, aber deaktiviert"
+                perf_detail = "Cython available, but disabled"
             else:
-                perf_detail = "Für mehr Speed: ./build_cython.sh"
+                perf_detail = "For more speed: ./build_cython.sh"
             perf_color = "#f39c12"  # Orange
         
         self.perf_label.setText(
@@ -680,9 +680,9 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'results') and self.results is not None:
             reply = QMessageBox.question(
                 self,
-                "Module neu laden?",
-                "Das Umschalten zwischen Cython und Python erfordert das Neuladen "
-                "der Simulationsmodule. Möchten Sie fortfahren?",
+                "Reload modules?",
+                "Switching between Cython and Python requires reloading "
+                "the simulation modules. Do you want to continue?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.No:
@@ -700,9 +700,9 @@ class MainWindow(QMainWindow):
             mode = "Cython" if use_cython else "Python"
             QMessageBox.information(
                 self,
-                "Modus gewechselt",
-                f"Erfolgreich zu {mode}-Modus gewechselt!\n\n"
-                f"Neue Simulationen werden {mode}-Module verwenden."
+                "Mode Switched",
+                f"Successfully switched to {mode} mode!\n\n"
+                f"New simulations will use {mode} modules."
             )
         else:
             # Failed to switch (probably Cython not available)
@@ -712,9 +712,9 @@ class MainWindow(QMainWindow):
             self.update_performance_label()
             QMessageBox.warning(
                 self,
-                "Wechsel fehlgeschlagen",
-                "Cython-Module konnten nicht geladen werden.\n"
-                "Führe './build_cython.sh' aus um sie zu kompilieren."
+                "Switch Failed",
+                "Could not load Cython modules.\n"
+                "Run './build_cython.sh' to compile them."
             )
         
     def start_simulation(self):
@@ -726,7 +726,7 @@ class MainWindow(QMainWindow):
         dir_vec = np.array([params.dir_x, params.dir_y, params.dir_z])
         norm = np.linalg.norm(dir_vec)
         if norm == 0:
-            QMessageBox.warning(self, "Fehler", "Richtungsvektor kann nicht null sein!")
+            QMessageBox.warning(self, "Error", "Direction vector cannot be zero!")
             return
         # Normalize
         params.dir_x /= norm
@@ -749,7 +749,7 @@ class MainWindow(QMainWindow):
         self.export_button.setEnabled(False)
         self.cython_toggle.setEnabled(False)  # Disable during simulation
         self.progress_bar.setValue(0)
-        self.progress_label.setText("Simulation läuft...")
+        self.progress_label.setText("Simulation running...")
         self.results_text.clear()
         
         # Start simulation
@@ -759,7 +759,7 @@ class MainWindow(QMainWindow):
         """Stop the running simulation."""
         if self.sim_thread is not None:
             self.sim_thread.stop()
-            self.progress_label.setText("Stoppe Simulation...")
+            self.progress_label.setText("Stopping simulation...")
             
     def update_progress(self, current, total):
         """Update progress bar.
@@ -787,12 +787,12 @@ class MainWindow(QMainWindow):
         self.export_button.setEnabled(True)
         self.cython_toggle.setEnabled(True)  # Re-enable after simulation
         self.progress_bar.setValue(100)
-        self.progress_label.setText("Simulation abgeschlossen!")
+        self.progress_label.setText("Simulation completed!")
         
         # Display results with performance info
         result_text = results.get_summary()
         result_text += "\n" + "=" * 50 + "\n"
-        result_text += f"Performance-Modus: {'Cython (optimiert)' if is_using_cython() else 'Python (Fallback)'}\n"
+        result_text += f"Performance Mode: {'Cython (optimized)' if is_using_cython() else 'Python (fallback)'}\n"
         if results.simulation_time > 0 and results.total_ions > 0:
             ions_per_sec = results.total_ions / results.simulation_time
             result_text += f"Durchsatz: {ions_per_sec:.1f} Ionen/Sekunde\n"
@@ -828,10 +828,10 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
         self.param_widget.set_enabled(True)
         self.cython_toggle.setEnabled(True)  # Re-enable after error
-        self.progress_label.setText("Fehler!")
+        self.progress_label.setText("Error!")
         
-        QMessageBox.critical(self, "Simulationsfehler", 
-                           f"Fehler während der Simulation:\n{error_msg}")
+        QMessageBox.critical(self, "Simulation Error", 
+                           f"Error during simulation:\n{error_msg}")
         
     def export_results(self):
         """Export simulation results to file."""
@@ -839,25 +839,25 @@ class MainWindow(QMainWindow):
             return
             
         filename, _ = QFileDialog.getSaveFileName(
-            self, "Ergebnisse exportieren", "", 
+            self, "Export Results", "", 
             "Text Files (*.txt);;All Files (*)"
         )
         
         if filename:
             try:
                 with open(filename, 'w', encoding='utf-8') as f:
-                    f.write("PyTRIM Simulationsergebnisse\n")
+                    f.write("PyTRIM Simulation Results\n")
                     f.write("=" * 50 + "\n\n")
                     f.write(self.results.get_summary())
                     f.write("\n\n" + "=" * 50 + "\n")
-                    f.write("Stopptiefen (Å):\n")
+                    f.write("Stopping Depths (Å):\n")
                     for depth in self.results.stopped_depths:
                         f.write(f"{depth:.2f}\n")
-                QMessageBox.information(self, "Export erfolgreich", 
-                                      f"Ergebnisse wurden gespeichert in:\n{filename}")
+                QMessageBox.information(self, "Export Successful", 
+                                      f"Results saved to:\n{filename}")
             except Exception as e:
-                QMessageBox.critical(self, "Export-Fehler", 
-                                   f"Fehler beim Speichern:\n{str(e)}")
+                QMessageBox.critical(self, "Export Error", 
+                                   f"Error during save:\n{str(e)}")
 
 
 def main():

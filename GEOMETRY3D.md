@@ -4,10 +4,10 @@
 
 CyTRIM unterstützt jetzt vollständige **3D-Simulationen** mit verschiedenen Geometrietypen und echter 3D-Visualisierung!
 
-## Verfügbare Geometrien
+## Availablee Geometrien
 
 ### 1. **Planar** (Standard, abwärtskompatibel)
-Einfache planare Geometrie, unbegrenzt in x-y Richtung.
+Einfache planare Geometrie, unbegrenzt in x-y Direction.
 
 ```python
 params.geometry_type = 'planar'
@@ -16,7 +16,7 @@ params.zmax = 4000
 ```
 
 ### 2. **Box** (Rechteckiges Target)
-3D-Box mit definierten Grenzen in allen Richtungen.
+3D-Box mit definierten Grenzen in allen Directionen.
 
 ```python
 params.geometry_type = 'box'
@@ -30,7 +30,7 @@ params.geometry_params = {
 **Anwendung:** Rechteckige Chips, strukturierte Targets
 
 ### 3. **Cylinder** (Zylindrisches Target)
-Zylinder mit Achse entlang z-Richtung.
+Zylinder mit Achse entlang z-Direction.
 
 ```python
 params.geometry_type = 'cylinder'
@@ -79,12 +79,12 @@ params.geometry_params = {
 ### Starten des GUI
 ```bash
 ./run_gui.sh
-# oder
+# or
 python pytrim_gui.py
 ```
 
 ### 3D-Visualisierung
-1. Parameter eingeben
+1. Parameters eingeben
 2. **"Simulation starten"** klicken
 3. Tab **"3D Trajektorien"** öffnen
 4. Sehen Sie:
@@ -102,9 +102,9 @@ python pytrim_gui.py
 
 ### Beispiel: Box-Geometrie
 ```python
-from pytrim import TRIMSimulation, SimulationParameters
+from pytrim import TRIMSimulation, SimulationParameterss
 
-params = SimulationParameters()
+params = SimulationParameterss()
 params.nion = 100
 params.e_init = 50000  # 50 keV
 
@@ -128,7 +128,7 @@ print(f"Radial spread: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
 
 ### Beispiel: Zylinder mit radialer Analyse
 ```python
-params = SimulationParameters()
+params = SimulationParameterss()
 params.geometry_type = 'cylinder'
 params.geometry_params = {
     'radius': 300,
@@ -145,7 +145,7 @@ radii = [np.sqrt(pos[0]**2 + pos[1]**2) for pos in results.stopped_positions]
 print(f"Max. Radius: {max(radii):.2f} Å (Zylinder-Radius: 300 Å)")
 ```
 
-## Ergebnisse und Statistiken
+## Resultse und Statistiken
 
 ### 3D-Verteilungsanalyse
 Die `SimulationResults` enthalten jetzt:
@@ -223,7 +223,7 @@ Alle Geometrien sind Cython-optimiert:
 - Toolbar → **"Save"** für PNG/PDF
 - Hochauflösende Plots möglich
 
-## Erweiterte Features
+## Advanced Features
 
 ### Custom Geometrien
 Erstelle eigene Geometrie-Klassen:
@@ -257,7 +257,7 @@ class BoxWithHole(Geometry3D):
 ## Troubleshooting
 
 ### Problem: Keine Ionen stoppen
-- **Lösung:** Energie zu hoch oder Target zu klein
+- **Lösung:** Energy zu hoch oder Target zu klein
 - Reduziere `e_init` oder erhöhe Geometrie-Dimensionen
 
 ### Problem: 3D-Plot leer

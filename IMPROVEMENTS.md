@@ -14,7 +14,7 @@
 
 ✅ **GUI**
 - PyQt6 mit 5 Visualisierungs-Tabs
-- 3D + 2× 2D Projektionen
+- 3D + 2× 2D Projectionen
 - Echtzeit-Fortschritt
 - Cython Toggle
 
@@ -25,12 +25,12 @@
 ### **Priorität 1: Sofort umsetzbar (1-3 Stunden)**
 
 #### 1.1 GUI-Verbesserungen ⭐⭐⭐⭐⭐
-**Problem:** Geometrie-Parameter müssen im Code gesetzt werden
+**Problem:** Geometrie-Parameters müssen im Code gesetzt werden
 **Lösung:**
 ```python
 # Geometrie-Auswahl Dropdown im GUI
 - Dropdown: [Planar, Box, Cylinder, Sphere, MultiLayer]
-- Dynamische Parameter-Felder je nach Auswahl
+- Dynamische Parameters-Felder je nach Auswahl
 - Vorschau der Geometrie vor Simulation
 ```
 **Aufwand:** 2 Stunden
@@ -64,15 +64,15 @@
 **Nutzen:** Benutzerfreundlichkeit +++
 
 #### 1.4 Verbesserte Fehlerbehandlung ⭐⭐⭐⭐
-**Problem:** Ungültige Parameter führen zu kryptischen Fehlern
+**Problem:** Ungültige Parameters führen zu kryptischen Fehlern
 **Lösung:**
 ```python
 # Input-Validierung:
-- Energie > 0
+- Energy > 0
 - Masse > 0
 - Dichte > 0
-- Richtungsvektor ≠ 0
-- Geometrie-Parameter konsistent
+- Directionsvektor ≠ 0
+- Geometrie-Parameters konsistent
 - Benutzerfreundliche Fehlermeldungen
 ```
 **Aufwand:** 1 Stunde
@@ -86,10 +86,10 @@
 **Problem:** Nur Primärionen werden getrackt
 **Lösung:**
 ```python
-# Sekundär-Kollisionen verfolgen:
-- Recoil-Energie berechnen
-- Recoils rekursiv verfolgen (bis E < E_threshold)
-- Kaskaden-Tiefe begrenzen
+# Sekundär-Kollisionen track:
+- Recoil-Energy berechnen
+- Recoils rekursiv track (bis E < E_threshold)
+- Kaskaden-Depth begrenzen
 - Schädigungs-Profil berechnen (Vacancies, Interstitials)
 ```
 **Aufwand:** 5 Stunden
@@ -109,7 +109,7 @@ class MaterialLayer:
 **Aufwand:** 3 Stunden
 **Nutzen:** Realismus +++
 
-#### 2.3 Energie-abhängiges Stopping ⭐⭐⭐
+#### 2.3 Energy-abhängiges Stopping ⭐⭐⭐
 **Problem:** Lindhard-Faktor ist konstant
 **Lösung:**
 ```python
@@ -126,7 +126,7 @@ class MaterialLayer:
 **Lösung:**
 ```python
 # Thermische Bewegung:
-- Target-Atome haben thermische Geschwindigkeit
+- Target-Atome haben thermische Velocity
 - Debye-Temperatur berücksichtigen
 - Phonon-Scattering
 ```
@@ -143,7 +143,7 @@ class MaterialLayer:
 # Neue Plot-Typen:
 - 2D-Dichteplot (x-y bei fixem z)
 - Radiale Verteilung r(z)
-- Energie-Verlust vs. Tiefe
+- Energy-Verlust vs. Depth
 - Streuwinkel-Verteilung
 - Animations-Export (GIF/MP4)
 ```
@@ -206,8 +206,8 @@ class MaterialLayer:
 **Problem:** Fixe freie Weglänge
 **Lösung:**
 ```python
-# Energie-abhängige Steps:
-- Große Steps bei hoher Energie
+# Energy-abhängige Steps:
+- Große Steps bei hoher Energy
 - Kleine Steps nahe Stopp
 - 2-3x Speedup
 ```
@@ -334,7 +334,7 @@ import logging
 ### **Phase 2: Physik (2 Wochen)**
 1. ✅ Mehrschicht-Materialien (Woche 1)
 2. ✅ Recoil-Kaskaden (Woche 2)
-3. ✅ Energie-abhängiges Stopping (Woche 2)
+3. ✅ Energy-abhängiges Stopping (Woche 2)
 
 ### **Phase 3: Performance (1 Woche)**
 1. ✅ Multi-Threading (Tag 1-2)

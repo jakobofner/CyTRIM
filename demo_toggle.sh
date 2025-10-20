@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quick Demo Script für Cython Toggle Feature
+# Quick Demo Script for Cython Toggle Feature
 
 echo "================================================"
 echo "  CyTRIM - Cython Toggle Feature Demo"
@@ -7,22 +7,22 @@ echo "================================================"
 echo ""
 
 # Check if Cython is available
-echo "1. Prüfe Cython-Verfügbarkeit..."
-python -c "from pytrim import is_cython_available; print('   ✓ Cython ist verfügbar' if is_cython_available() else '   ✗ Cython nicht kompiliert')"
+echo "1. Check Cython availability..."
+python -c "from pytrim import is_cython_available; print('   ✓ Cython is available' if is_cython_available() else '   ✗ Cython not compiled')"
 echo ""
 
 # Run toggle test
-echo "2. Führe automatischen Toggle-Test aus..."
+echo "2. Run automatic toggle test..."
 python test_toggle.py
 echo ""
 
 # Show current status
-echo "3. Aktueller Status:"
-python -c "from pytrim import is_using_cython; print('   Modus: ⚡ Cython' if is_using_cython() else '   Modus: 🐍 Python')"
+echo "3. Current status:"
+python -c "from pytrim import is_using_cython; print('   Mode: ⚡ Cython' if is_using_cython() else '   Mode: 🐍 Python')"
 echo ""
 
 # Quick benchmark comparison
-echo "4. Quick Performance-Vergleich (100 Ionen):"
+echo "4. Quick performance comparison (100 ions):"
 echo ""
 echo "   Testing Python mode..."
 python -c "
@@ -51,14 +51,14 @@ print(f'   Speedup: {t_python/t_cython:.1f}x')
 "
 echo ""
 
-echo "5. GUI starten (schließen Sie das Fenster zum Beenden)..."
-echo "   Tipp: Testen Sie den Toggle im Performance-Bereich!"
+echo "5. Start GUI (close window to exit)..."
+echo "   Tip: Test the toggle in the performance section!"
 echo ""
-read -p "   Drücke Enter zum Starten..."
+read -p "   Press Enter to start..."
 
 python pytrim_gui.py
 
 echo ""
 echo "================================================"
-echo "  Demo abgeschlossen!"
+echo "  Demo completed!"
 echo "================================================"

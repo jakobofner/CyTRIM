@@ -1,112 +1,112 @@
-# PyTRIM GUI - Schnellstart
+# PyTRIM GUI - Quick Start
 
-## Installation (einmalig)
+## One-Time Installation
 
 ```bash
-# Virtuelle Umgebung erstellen
+# Create a virtual environment
 python3 -m venv .venv
 
-# Abhängigkeiten installieren
+# Install dependencies
 .venv/bin/pip install -r requirements.txt
 
-# OPTIONAL aber EMPFOHLEN: Cython-Optimierung für 6.4x schnellere Simulation
+# Optional but recommended: build Cython modules for ~6.4× faster runs
 ./build_cython.sh
 ```
 
-**Hinweis:** Falls Cython-Kompilation fehlschlägt, funktioniert das Programm trotzdem (mit Pure Python, ca. 6x langsamer).
+**Note:** If the Cython build fails, the application still runs in pure Python (roughly 6× slower).
 
-## Starten der GUI
+## Launching the GUI
 
-### Option 1: Startskript (Linux/Mac)
+### Option 1: Launch script (Linux/macOS)
 ```bash
 ./run_gui.sh
 ```
 
-### Option 2: Manuell
+### Option 2: Manual launch
 ```bash
-# Virtuelle Umgebung aktivieren
+# Activate the virtual environment
 source .venv/bin/activate  # Linux/Mac
-# oder
+# or
 .venv\Scripts\activate     # Windows
 
-# GUI starten
+# Start the GUI
 python pytrim_gui.py
 ```
 
-## Bedienung
+## Using the Interface
 
-1. **Parameter einstellen** (linke Seite)
-   - Anzahl Ionen (z.B. 1000 für schnellen Test, 10000 für genauere Statistik)
-   - Projektil-Eigenschaften (Z, Masse, Energie)
-   - Target-Eigenschaften (Z, Masse, Dichte, Geometrie)
-   
-2. **Performance-Status prüfen** (linkes Panel)
-   - ⚡ **Cython aktiviert**: ~6.4x schnellere Simulation
-   - 🐍 **Python Fallback**: Normale Geschwindigkeit (falls Cython nicht kompiliert)
-   
-2. **"Simulation starten"** klicken
+1. **Adjust simulation parameters** (left column)
+   - Number of ions (e.g. 1000 for a quick run, 10000 for better statistics)
+   - Projectile properties (Z, mass, energy)
+   - Target properties (Z, mass, density, geometry)
 
-3. **Ergebnisse in Tabs ansehen**:
-   - **Tab "Trajektorien"**: Visualisierung der Ion-Pfade (erste 10 Ionen)
-   - **Tab "Stopptiefe-Verteilung"**: Histogramm aller finalen Positionen
-   - **Tab "Ergebnisse"**: Statistiken (Mittelwert, Standardabweichung, Performance-Info)
+2. **Check the performance status** (left panel)
+   - ⚡ **Cython enabled:** ~6.4× faster execution
+   - 🐍 **Python fallback:** standard speed when Cython is unavailable
 
-4. **Optional**: "Ergebnisse exportieren" für Textdatei
+3. Click **“Start Simulation”**
 
-## Beispiel-Szenarien
+4. **Review the result tabs**
+   - **Trajectories:** first 10 ion paths with target boundaries
+   - **Stopping-depth distribution:** histogram of final depths
+   - **Results:** summary statistics (mean, standard deviation, performance info)
 
-### Test (schnell)
-- Anzahl Ionen: 100
-- Projektil: B (Z=5, M=11), Energie: 50000 eV
-- Target: Si (Z=14, M=28.086, Dichte=0.04994)
-- Dauer mit Cython: ~0.4 Sekunden
-- Dauer ohne Cython: ~3 Sekunden
+5. **Optional:** export the results to a text report via “Export Results”
 
-### Standard-Simulation
-- Anzahl Ionen: 1000
-- Dauer mit Cython: ~4.5 Sekunden
-- Dauer ohne Cython: ~28 Sekunden
+## Example Scenarios
 
-### Hohe Genauigkeit
-- Anzahl Ionen: 10000
-- Dauer mit Cython: ~45 Sekunden
-- Dauer ohne Cython: ~4.7 Minuten
+### Quick smoke test
+- Ions: 100
+- Projectile: B (Z=5, M=11), energy 50,000 eV
+- Target: Si (Z=14, M=28.086, density 0.04994)
+- Runtime with Cython: ~0.4 s
+- Runtime without Cython: ~3 s
 
-## Tipps
+### Standard production run
+- Ions: 1000
+- Runtime with Cython: ~4.5 s
+- Runtime without Cython: ~28 s
 
-- **Trajektorien-Anzeige**: Nur die ersten 10 Ionen werden gezeichnet (Performance)
-- **Histogramm**: Zeigt ALLE simulierten Ionen
-- **Zoom/Pan**: Nutze die Toolbar unter den Plots
-- **Parameter-Voreinstellungen**: Standard-Werte sind für B in Si bei 50 keV optimiert
+### High-accuracy run
+- Ions: 10000
+- Runtime with Cython: ~45 s
+- Runtime without Cython: ~4.7 min
 
-## Häufige Probleme
+## Tips
 
-**GUI startet nicht**: 
+- **Trajectory view:** only the first 10 ions are rendered for performance
+- **Histogram tab:** includes every simulated ion
+- **Zoom and pan:** use the Matplotlib toolbar below each plot
+- **Default parameter set:** tuned for B in Si at 50 keV
+
+## Common Issues
+
+**GUI will not start**
 ```bash
-# Prüfe ob PyQt6 installiert ist
+# Check whether PyQt6 is installed
 .venv/bin/pip list | grep PyQt6
 
-# Falls nicht, neu installieren
+# Reinstall if missing
 .venv/bin/pip install PyQt6 matplotlib
 ```
 
-**Simulation sehr langsam**:
+**Simulation feels slow**
 ```bash
-# Prüfe ob Cython aktiv ist
+# Verify whether Cython is active
 .venv/bin/python -c "from pytrim.simulation import is_using_cython; print('Cython:', is_using_cython())"
 
-# Falls False, kompiliere Cython-Module:
+# Build Cython modules if needed
 ./build_cython.sh
 
-# Performance-Vergleich:
+# Compare performance
 .venv/bin/python compare_performance.py
 ```
 
-**Cython-Kompilation schlägt fehl**:
-- Stelle sicher dass ein C-Compiler installiert ist (gcc auf Linux, Xcode auf Mac, Visual Studio auf Windows)
-- Das Programm funktioniert trotzdem mit Pure Python (nur langsamer)
-- Alternative: Reduziere Anzahl Ionen für akzeptable Laufzeit
+**Cython build fails**
+- Ensure a C compiler is available (gcc on Linux, Xcode command-line tools on macOS, MSVC/Build Tools on Windows)
+- The application still works in pure Python (just slower)
+- As a workaround, reduce the number of ions for shorter runs
 
-**"Richtungsvektor kann nicht null sein"**:
-- Mindestens eine Komponente von (dir_x, dir_y, dir_z) muss != 0 sein
-- Wird automatisch normiert
+**“Direction vector cannot be zero”**
+- At least one component of `(dir_x, dir_y, dir_z)` must be non-zero
+- The vector is normalized automatically

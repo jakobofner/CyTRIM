@@ -1,469 +1,339 @@
 # CyTRIM (PyTRIM) - Advanced Edition
 
-Eine professionelle Python-Implementierung von TRIM (Transport of Ions in Matter) mit modernen Features für Forschung und Lehre. Das Programm simuliert den Transport von Ionenstrahlen in komplexe 3D-Geometrien mittels Monte‑Carlo und bietet umfassende Analyse- und Visualisierungsmöglichkeiten.
+CyTRIM is a professional Python implementation of TRIM (Transport of Ions in Matter) with modern features for research and teaching. The program simulates the transport of ion beams into complex 3D geometries using Monte Carlo techniques and provides extensive tooling for analysis and visualization.
 
-**Version 2.0 - Advanced Edition:**
-- 🎯 **Erweiterte GUI** mit Material-Presets und dynamischer Geometrie-Auswahl
-- 📊 **10+ Visualisierungen** inklusive Heatmaps, Energie-Verlust, radiale Verteilung
-- 💾 **Multi-Format Export** (CSV, JSON, VTK, PNG) für professionelle Datenanalyse
-- ⚡ **6.4x schneller** mit Cython-Optimierung
+**Version 2.0 – Advanced Edition**
+- 🎯 **Extended GUI** with material presets and dynamic geometry selection
+- 📊 **10+ visualizations** including heatmaps, energy loss, and radial distributions
+- 💾 **Multi-format export** (CSV, JSON, VTK, PNG) for downstream processing
+- ⚡ **Up to 6.4× faster** through Cython acceleration
 
-> **📖 Schnellstart:** Siehe [QUICKSTART.md](QUICKSTART.md) | **🚀 Erweiterte Features:** [ADVANCED_FEATURES.md](ADVANCED_FEATURES.md)
+> **📖 Quick Start:** [QUICKSTART.md](QUICKSTART.md) · **🚀 Advanced Feature Overview:** [ADVANCED_FEATURES.md](ADVANCED_FEATURES.md)
 
-## Kern-Features
+## Core Features
 
-### Physik & Simulation
-- **Monte-Carlo Ion Transport** mit realistischer Physik
-- **3D Trajektorien-Verfolgung** mit vollständiger Positions-Historie
-- **5 Geometrie-Typen**: Planar, Box, Cylinder, Sphere, MultiLayer
-- **ZBL-Potential** für elastische Streuung
-- **Lindhard Stopping Power** mit Korrektur-Faktor
-- **Recoil-Kaskaden** (in Entwicklung) für Strahlenschäden
+### Physics & Simulation
+- **Monte Carlo ion transport** with realistic scattering physics
+- **3D trajectory tracking** with full position history for each ion
+- **Five geometry types:** Planar, Box, Cylinder, Sphere, and MultiLayer targets
+- **ZBL potential** for elastic scattering
+- **Lindhard stopping power** with configurable correction factor
+- **Recoil cascade groundwork** (in progress) for radiation damage studies
 
-### Benutzeroberfläche
-- **Moderne PyQt6-GUI** mit 10+ Visualisierungs-Tabs
-- **Material-Presets** für Standard-Szenarien (B in Si, As in Si, etc.)
-- **Dynamische Geometrie-Auswahl** mit kontextabhängigen Parametern
-- **Echtzeit-Fortschritt** mit Performance-Anzeige
-- **Interaktive 3D-Plots** mit Rotation und Zoom
+### User Interface
+- **Modern PyQt6 GUI** with more than ten visualization tabs
+- **Material presets** covering common implantation scenarios (B in Si, As in Si, etc.)
+- **Dynamic geometry selection** with context-aware parameter forms
+- **Real-time progress and performance indicators**
+- **Interactive Matplotlib views** with rotation, zoom, and selection
 
-### Visualisierung & Analyse
-- **3D Trajektorien** mit Geometrie-Rendering
-- **2D Projektionen** (x-z, y-z) für detaillierte Analyse
-- **Heatmaps** (x-z, y-z, x-y) zur Dichte-Visualisierung
-- **Energie-Verlust Plots** mit gemittelten Profilen
-- **Radiale Verteilung** vs. Tiefe
-- **Stopptiefe-Histogramme** mit Statistiken
+### Visualization & Analysis
+- **3D trajectory plots** with target geometry overlays
+- **2D projections** (x–z, y–z) for detailed inspection
+- **Density heatmaps** (x–z, y–z, x–y) with smoothing options
+- **Energy loss trends** including averaged profiles
+- **Radial distribution vs. depth** to quantify lateral spread
+- **Stopping-depth histograms** with key statistics
 
 ### Export & Integration
-- **CSV**: Tabellarische Daten für Excel/Python
-- **JSON**: Strukturierte Daten für Weiterverarbeitung
-- **VTK**: 3D-Visualisierung in ParaView
-- **PNG**: Hochauflösende Plots (300 DPI)
-- **Trajektorien-Export** als Polylines
+- **CSV:** tabular data for Excel, pandas, or MATLAB workflows
+- **JSON:** structured data for scripting and automation
+- **VTK:** polyline exports compatible with ParaView and VTK pipelines
+- **PNG:** high-resolution plots (300 DPI) for publications
+- **Trajectory exports:** raw coordinate tracks for downstream analysis
 
 ### Performance
-- **Cython-Optimierung** für bis zu 6.4x Speedup
-- **Runtime-Toggle** zwischen Cython und Python
-- **Automatischer Fallback** auf Pure Python
-- **Performance-Monitoring** im GUI
+- **Cython optimization** delivering up to 6.4× speedup vs. pure Python
+- **Runtime toggle** between Cython and Python execution paths
+- **Automatic fallback** to pure Python when compiled modules are absent
+- **Performance telemetry** surfaced directly in the GUI
 
-## Was macht das Programm?
+## What Does the Program Do?
 
-- Simuliert nacheinander viele Primärionen (Monte‑Carlo).
-- Bewegt jedes Ion schrittweise bis zum Stillstand (Energie unter Schwelle) oder bis es das Target verlässt.
-- Berücksichtigt elektronische Energieverluste nach Lindhard (mit Korrekturfaktor) entlang der freien Weglänge bis zur nächsten Kollision.
-- Behandelt elastische Streuung an Targetatomen mit dem ZBL‑Potential und Biersacks „magic formula“ für den Streuwinkel.
-- Erfasst die Stopptiefe der Ionen, die im Target zur Ruhe kommen, und berechnet Mittelwert und Standardabweichung.
+- Simulates many primary ions consecutively (Monte Carlo approach).
+- Moves each ion step-by-step until it stops (energy below the cutoff) or leaves the target.
+- Applies electronic stopping according to Lindhard with a configurable correction factor along the free path to the next collision.
+- Handles elastic scattering on target atoms using the ZBL potential and Biersack's “magic formula” for scattering angles.
+- Records the stopping depth of ions that come to rest in the target and computes mean value and standard deviation.
 
-Einheiten: Positionen in Å, Energien in eV, Dichten in Atome/Å³.
+Units: positions in Å, energies in eV, densities in atoms/Å³.
 
-## Wie funktioniert es? (Ablauf)
+## How It Works (Workflow)
 
-1) Initialisierung
-- `select_recoil.setup(density)`: mittlere freie Weglänge aus der Dichte.
-- `scatter.setup(z1, m1, z2, m2)`: Konstanten für ZBL‑Streuung (Normierungen, Massenverhältnis).
-- `estop.setup(corr_lindhard, z1, m1, z2, density)`: Faktor für Lindhard‑Stopping bei gegebener Dichte.
-- `geometry.setup(zmin, zmax)`: planare Targetgrenzen in z‑Richtung.
-- `trajectory.setup()`: Energieschwelle `EMIN` (Standard: 5 eV).
+1. **Initialization**
+   - `select_recoil.setup(density)`: derive mean free path from the target density.
+   - `scatter.setup(z1, m1, z2, m2)`: prepare constants for ZBL scattering (normalization, mass ratios).
+   - `estop.setup(corr_lindhard, z1, m1, z2, density)`: pre-compute Lindhard stopping factors.
+   - `geometry.setup(zmin, zmax)`: define planar target bounds along z.
+   - `trajectory.setup()`: set the energy cutoff `EMIN` (default 5 eV).
 
-2) Trajektorie eines Ions (`trajectory.trajectory`)
-- Bestimme freie Weglänge und Kollisionsgeometrie: `select_recoil.get_recoil_position(pos, dir)` liefert freie Weglänge, Impaktparameter p und Richtung zum Rekoil.
-- Elektronischer Energieverlust entlang der freien Weglänge: `estop.eloss(e, free_path)` (Lindhard, ∆E ∝ √E · Weglänge).
-- Position aktualisieren; prüfen, ob das Ion noch im Target ist: `geometry.is_inside_target`.
-- Elastische Streuung am Targetatom: `scatter.scatter(e, dir, p, dirp)` (ZBL + magic formula) liefert neue Richtung und Energie des Projektils (sowie Rekoilrichtung/-energie, die derzeit nicht weiterverfolgt werden).
-- Wiederholen, bis `e ≤ EMIN` oder das Ion das Target verlässt.
+2. **Trajectory of a single ion (`trajectory.trajectory`)**
+   - Determine free path and collision geometry with `select_recoil.get_recoil_position(pos, dir)`, yielding path length, impact parameter *p*, and recoil direction.
+   - Apply electronic energy loss along the path via `estop.eloss(e, free_path)` (Lindhard, ΔE ∝ √E × path length).
+   - Update the position and check with `geometry.is_inside_target` whether the ion remains within the target.
+   - Perform elastic scattering at the target atom using `scatter.scatter(e, dir, p, dirp)` (ZBL + magic formula), producing the new projectile direction and energy; recoil tracking is currently not propagated further.
+   - Repeat until `e ≤ EMIN` or the ion exits the target region.
 
-3) Statistik
-- Zähle Ionen, die innerhalb des Targets stoppen, und akkumulieren deren Stopptiefe z.
-- Ausgabe: Anzahl der stoppenden Ionen, mittlere Stopptiefe und Standardabweichung, sowie Laufzeit.
+3. **Statistics**
+   - Count ions that stop inside the target and accumulate their stopping depth *z*.
+   - Report number of stopped ions, mean stopping depth, standard deviation, and runtime.
 
-## Projektstruktur
+## Project Structure
 
-### GUI-Version (empfohlen)
-- `pytrim_gui.py`: Hauptprogramm mit moderner PyQt6-Benutzeroberfläche
-- `pytrim/simulation.py`: Simulationsklassen (TRIMSimulation, SimulationParameters, SimulationResults)
+### GUI Version (recommended)
+- `pytrim_gui.py`: main application with the standard PyQt6 interface.
+- `pytrim/simulation.py`: object-oriented simulation pipeline (`TRIMSimulation`, `SimulationParameters`, `SimulationResults`).
 
-### Kern-Module
-- `pytrim/trajectory.py`: Simuliert die Trajektorie eines einzelnen Ions (Schleife bis Stoppen/Verlassen)
-- `pytrim/select_recoil.py`: Wählt die nächste Kollision in einem amorphen Target; mittlere freie Weglänge = Dichte^(-1/3), zufällige Azimutlage
-- `pytrim/estop.py`: Elektronischer Energieverlust nach Lindhard mit Korrekturfaktor; ∆E wird am Schrittende abgezogen (abgeschnitten bei e)
-- `pytrim/scatter.py`: ZBL‑Potential und Biersacks „magic formula" zur Bestimmung des Streuwinkels; aktualisiert Richtungen und teilt Energie zwischen Projektil und Rekoil auf
-- `pytrim/geometry.py`: Einfache planare Geometrie mit Grenzen `zmin`/`zmax`
+### Core Modules
+- `pytrim/trajectory.py`: advances a single ion until it stops or exits the target.
+- `pytrim/select_recoil.py`: samples the next collision in an amorphous target (mean free path ∝ density^(-1/3)).
+- `pytrim/estop.py`: computes Lindhard-based electronic stopping with correction factor.
+- `pytrim/scatter.py`: implements ZBL potential and Biersack’s magic formula for scattering.
+- `pytrim/geometry.py`: planar geometry helper (z min / z max constraints).
 
 ### Legacy
-- `pytrim/pytrim.py`: Original-Kommandozeilen-Skript (Referenz)
+- `pytrim/pytrim.py`: original command-line reference implementation.
 
 ## Installation
 
-### Voraussetzungen
+### Requirements
 - Python ≥ 3.8
 - NumPy
-- PyQt6 (für GUI)
-- Matplotlib (für Visualisierung)
-- Cython (optional, für optimierte Performance)
-- C-Compiler (optional, für Cython-Kompilation)
+- PyQt6 (GUI)
+- Matplotlib (visualizations)
+- Cython (optional for performance)
+- C compiler (optional to build the Cython extensions)
 
-### Schnellinstallation
-
+### Quick Installation
 ```bash
-# Repository klonen oder herunterladen
+# Clone or download the repository
 cd CyTRIM
 
-# Virtuelle Umgebung erstellen (empfohlen)
+# Create a virtual environment (recommended)
 python -m venv .venv
-source .venv/bin/activate  # Unter Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
-# Abhängigkeiten installieren
+# Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### Cython-Optimierung (empfohlen für beste Performance)
-
-**6.4x schnellere Simulation!**
-
+### Cython Optimization (recommended)
 ```bash
-# Nach der Grundinstallation:
+# After installing dependencies
 ./build_cython.sh
 
-# Oder manuell:
+# Alternatively
 pip install Cython
 python setup.py build_ext --inplace
 ```
+**Note:** If compilation fails, the application still runs in pure Python (slower but feature complete).
 
-**Hinweis:** Falls die Kompilation fehlschlägt, funktioniert das Programm weiterhin mit reinem Python (langsamer, aber vollständig funktionsfähig).
+## Running the Application
 
-## Ausführen
+### GUI Version (recommended)
 
-### GUI-Version (empfohlen)
-
-**Standard-GUI:**
+**Standard GUI**
 ```bash
 ./run_gui.sh
 ```
 
-**Erweiterte GUI mit allen Features:**
+**Extended GUI with advanced tooling**
 ```bash
 ./run_extended_gui.sh
 ```
+The extended GUI provides:
+- 📐 Geometry selection (Planar, Box, Cylinder, Sphere, MultiLayer)
+- 🧪 Material presets (B in Si, As in Si, etc.)
+- 📊 10+ visualization tabs
+- 💾 Multi-format export (CSV, JSON, VTK, PNG)
 
-Die erweiterte GUI bietet:
-- 📐 Geometrie-Auswahl (Planar, Box, Cylinder, Sphere, MultiLayer)
-- 🧪 Material-Presets (B in Si, As in Si, etc.)
-- 📊 10+ Visualisierungs-Tabs (Heatmaps, Energie-Verlust, etc.)
-- 💾 Multi-Format Export (CSV, JSON, VTK, PNG)
-
-**Oder manuell:**
+**Manual launch**
 ```bash
-# Virtuelle Umgebung aktivieren
-source .venv/bin/activate  # Linux/Mac
-# oder
-.venv\Scripts\activate     # Windows
-
-# GUI starten
+source .venv/bin/activate  # Linux/macOS
+.venv\Scripts\activate    # Windows
 python pytrim_gui.py
 ```
 
-Die GUI öffnet sich mit folgenden Bereichen:
-- **Links:** Parametereingabe für alle Simulationsparameter
-- **Rechts (Tabs):**
-  - **Trajektorien:** Visualisierung der Ion-Pfade (x-z-Projektion)
-  - **Stopptiefe-Verteilung:** Histogramm der finalen z-Positionen
-  - **Ergebnisse:** Statistische Auswertung (Mittelwert, Standardabweichung, etc.)
+### Cython Toggle Feature
+- A “Use Cython” checkbox appears in the performance panel (enabled when compiled modules are available).
+- ⚡ **Cython mode** (~6.4× faster) for production runs and large simulations (>100 ions).
+- 🐍 **Python mode** for debugging, development, or small test cases (<50 ions).
+- Switching happens at runtime—no restart required. See [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md) for details.
 
-**Bedienung:**
-1. Parameter nach Bedarf anpassen
-2. Performance-Status prüfen (⚡ Cython oder 🐍 Python)
-3. Optional: Cython-Toggle verwenden um zwischen Modi zu wechseln
-4. "Simulation starten" klicken
-5. Fortschritt in Echtzeit verfolgen
-6. Ergebnisse in Tabs anschauen (inkl. Performance-Info)
-7. Optional: "Ergebnisse exportieren" für Textdatei mit Daten
-
-### Cython-Toggle Feature
-
-**Zur Laufzeit zwischen Cython und Python wechseln:**
-
-- Im Performance-Bereich der GUI finden Sie eine Checkbox "Cython verwenden"
-- ⚡ **Cython-Modus** (Grün): ~6.4x schneller, ideal für große Simulationen
-- 🐍 **Python-Modus** (Orange): Langsamer, aber besser für Debugging
-
-**Wann welchen Modus verwenden?**
-- **Cython** ✓ für: Produktionsläufe, große Simulationen (>100 Ionen), Parameterstudien
-- **Python** ✓ für: Debugging, Entwicklung, kleine Tests (<50 Ionen)
-
-Das Umschalten lädt die Module zur Laufzeit neu - keine Neustart erforderlich!
-
-Weitere Details: Siehe [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md)
-
-### Kommandozeilen-Version (Legacy)
-
-Vom Repository‑Wurzelverzeichnis:
-
+### Command-Line Version (legacy)
 ```bash
 python pytrim/pytrim.py
 ```
+The CLI reports the number of ions that stop inside the target alongside mean penetration depth, standard deviation, and runtime.
 
-Die Konsole zeigt am Ende u. a. die Anzahl der im Target stoppenden Ionen sowie die mittlere Eindringtiefe und deren Standardabweichung an.
+## Configuring the Simulation
 
-## Konfiguration der Simulation
+### GUI Parameters
+- **Number of ions:** total primaries to simulate.
+- **Target geometry:** `z_min`, `z_max` define planar bounds; alternate geometries expose additional fields.
+- **Projectile:** atomic number, atomic mass (amu), initial energy (eV), start position (Å), and direction (unit vector).
+- **Target material:** atomic number, atomic mass, density (atoms/Å³).
+- **Physics:** Lindhard correction factor (typically 1.0–2.0).
 
-### GUI-Version
-Alle Parameter können bequem über die Benutzeroberfläche eingestellt werden:
+### Command-Line Parameters
+Defined near the top of `pytrim/pytrim.py`:
+- `nion`: number of primary ions.
+- `zmin`, `zmax`: planar geometry limits.
+- `z1`, `m1`: projectile atomic number and mass.
+- `z2`, `m2`: target atomic number and mass.
+- `density`: target density.
+- `corr_lindhard`: Lindhard correction factor.
+- Initial conditions: `e_init` (eV), `pos_init` (Å), `dir_init` (unit vector).
+- Advanced: energy cutoff per ion (`EMIN`) in `pytrim/trajectory.py` (default 5 eV).
 
-**Allgemein:**
-- Anzahl Ionen: Wie viele Primärionen simuliert werden sollen
+## Example Scenarios
 
-**Target-Geometrie:**
-- z_min, z_max: Planare Grenzen des Targets in Å
-
-**Projektil:**
-- Z: Ordnungszahl (Atomnummer)
-- Masse: Atommasse in amu
-- Anfangsenergie: Kinetische Energie in eV
-- Startposition: x, y, z Koordinaten in Å
-- Richtung: Einheitsvektor (wird automatisch normiert)
-
-**Target-Material:**
-- Z: Ordnungszahl des Targetatoms
-- Masse: Atommasse in amu
-- Dichte: Atomare Dichte in Atome/Å³
-
-**Physik:**
-- Lindhard Korrektur: Korrekturfaktor für elektronisches Stopping (typisch 1.0-2.0)
-
-### Kommandozeilen-Version
-Die Parameter sind im Kopf von `pytrim/pytrim.py` definiert:
-- `nion`: Anzahl zu simulierender Primärionen
-- `zmin`, `zmax`: Geometriegrenzen in Å
-- `z1`, `m1`: Ordnungszahl und Masse des Projektils
-- `z2`, `m2`: Ordnungszahl und Masse des Targets
-- `density`: Targetdichte (Atome/Å³)
-- `corr_lindhard`: Korrekturfaktor zur Lindhard‑Formel
-- Anfangsbedingungen: `e_init` (eV), `pos_init` (Å), `dir_init` (Einheitsvektor)
-
-**Erweiterte Einstellungen:**
-- Energieschwelle zum Abbruch pro Ion (`EMIN`) in `pytrim/trajectory.py` (Standard 5 eV)
-
-## Beispiel-Szenarien
-
-### Demo-Skript (Alle Features zeigen)
-
+### Demo Script (showcases every feature)
 ```bash
 python demo_advanced_features.py
 ```
-
-Demonstriert:
-1. Material-Presets laden
-2. Verschiedene Geometrien simulieren
-3. Export in alle Formate
-4. Erweiterte Visualisierungen
+Demonstrates:
+1. Loading material presets.
+2. Switching between geometry templates.
+3. Exporting results in all formats.
+4. Exploring the extended visualization suite.
 
 ### GUI Workflow
+- Launch the extended GUI (`./run_extended_gui.sh`).
+- Click **“Load Preset…”**, choose “B in Si”, confirm.
+- Adjust the number of ions (e.g. 5000) and start the simulation.
+- Review all result tabs and export data via **“💾 Export…”**.
 
-**Schnellstart mit Preset:**
-1. Erweiterte GUI starten: `./run_extended_gui.sh`
-2. **"Preset laden..."** klicken
-3. "B in Si" auswählen → OK
-4. Ionen-Anzahl anpassen (z.B. 5000)
-5. **"🚀 Simulation starten"**
-6. Nach Abschluss alle Tabs durchsehen
-7. **"💾 Exportieren..."** für Daten-Export
+### Custom Geometry
+- Open the **Geometry** tab.
+- Pick a geometry (e.g. cylinder) and enter radius, bounds, and axis.
+- Configure material parameters in **Basic Parameters** and start the run.
 
-**Custom Geometrie:**
-1. **Geometrie-Tab** öffnen
-2. Typ wählen: z.B. "cylinder"
-3. Parameter eingeben: Radius = 500 Å
-4. **Basis-Parameter Tab**: Material einstellen
-5. Simulation starten
-
-### Beispiel-Code (Python-API)
-
+### Sample Code (Python API)
 ```python
 from pytrim.simulation import TRIMSimulation, SimulationParameters
 from pytrim.presets import get_preset_manager
 from pytrim import export
 
-# Methode 1: Preset verwenden
 manager = get_preset_manager()
 preset = manager.get_preset("B in Si")
 
 params = SimulationParameters()
 params.nion = 1000
-params.z1 = preset.z1
-params.m1 = preset.m1
-params.z2 = preset.z2
-params.m2 = preset.m2
+params.z1, params.m1 = preset.z1, preset.m1
+params.z2, params.m2 = preset.z2, preset.m2
 params.density = preset.density
 params.e_init = preset.energy
 params.corr_lindhard = preset.corr_lindhard
-params.zmin = preset.zmin
-params.zmax = preset.zmax
+params.zmin, params.zmax = preset.zmin, preset.zmax
 
-# Methode 2: Custom Geometrie
 params.geometry_type = "cylinder"
-params.geometry_params = {'radius': 500, 'axis': 'z'}
+params.geometry_params = {"radius": 500, "axis": "z"}
 
-# Simulation durchführen
 sim = TRIMSimulation(params)
 results = sim.run(record_trajectories=True, max_trajectories=20)
-
-# Ergebnisse anzeigen
 print(results.get_summary())
 
-# Exportieren
 export.export_to_json(results, "results.json")
 export.export_to_vtk(results, "results.vtk")
 ```
 
-### Beispiel-Szenario: Nanowire
-
-**Ziel**: Phosphor-Implantation in Silizium-Nanowire
-
+### Example Scenario: Nanowire Implantation
 ```python
 params = SimulationParameters()
 params.nion = 2000
-
-# Material (P in Si)
-params.z1, params.m1 = 15, 30.974  # P
-params.z2, params.m2 = 14, 28.086  # Si
+params.z1, params.m1 = 15, 30.974   # Phosphorus
+params.z2, params.m2 = 14, 28.086   # Silicon
 params.density = 0.04994
 params.corr_lindhard = 1.5
 
-# Geometrie (Zylindrischer Nanowire)
 params.geometry_type = "cylinder"
-params.geometry_params = {'radius': 50, 'axis': 'z'}
+params.geometry_params = {"radius": 50, "axis": "z"}
 params.zmin, params.zmax = 0, 3000
-
-# Strahl
-params.e_init = 60000  # 60 keV
+params.e_init = 60000
 params.z_init = 0
 params.dir_z = 1.0
 
-# Simulieren
 sim = TRIMSimulation(params)
 results = sim.run(record_trajectories=True)
-
-# Analyse: Wie viele Ionen treffen den Nanowire?
-print(f"Im Wire gestoppt: {results.stopped}/{results.nion}")
-print(f"Radiale Streuung: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
+print(f"Stopped in wire: {results.stopped}/{results.nion}")
+print(f"Radial spread: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
 ```
 
-### Standard: Bor in Silizium
-- Projektil: B (Z=5, M=11.009 amu)
-- Target: Si (Z=14, M=28.086 amu)
-- Energie: 50 keV
-- Dichte: 0.04994 Atome/Å³ (kristallines Si)
-- Erwartete Eindringtiefe: ~2000-2500 Å
+### Reference Values
+- **Boron in silicon:** Z=5, mass=11.009 amu; target Z=14, mass=28.086 amu; energy 50 keV; density 0.04994 atoms/Å³; expected depth ≈ 2000–2500 Å.
+- **Arsenic in silicon:** Z=33, mass=74.922 amu; target Z=14, mass=28.086 amu; energy 100 keV; expected depth smaller due to heavier ion mass.
 
-### Hochenergie: Arsen in Silizium
-- Projektil: As (Z=33, M=74.922 amu)
-- Target: Si (Z=14, M=28.086 amu)
-- Energie: 100 keV
-- Erwartete Eindringtiefe: geringer als bei Bor (schwereres Ion)
-
-## Screenshots & Visualisierung
-
-Die GUI zeigt:
-1. **Trajektorien-Plot:** Bis zu 10 Ion-Pfade als farbige Linien mit Targetgrenzen
-2. **Histogramm:** Verteilung der Stopptiefen aller Ionen mit Mittelwert-Linie
-3. **Ergebnistabelle:** Anzahl gestoppter Ionen, Mittelwert, Standardabweichung, Laufzeit
+## Screenshots & Visualization Highlights
+1. **Trajectory plot:** up to ten ion paths with target boundaries.
+2. **Stopping-depth histogram:** distribution with mean indicator.
+3. **Results view:** stopped ion count, mean depth, standard deviation, runtime, and performance metrics.
 
 ## Performance
 
-### Cython vs. Pure Python
+Benchmark (500 ions, B in Si, 50 keV):
 
-Benchmark mit 500 Ionen (B in Si, 50 keV):
+| Implementation | Time  | Ions/s | Speedup |
+|----------------|-------|--------|---------|
+| Pure Python    | 14.2s | 35     | 1.0×    |
+| **Cython**     | **2.2s** | **226** | **6.4×** |
 
-| Implementation | Zeit | Ionen/Sekunde | Speedup |
-|----------------|------|---------------|---------|
-| Pure Python    | 14.2s | 35 ions/s    | 1.0x    |
-| **Cython**     | **2.2s** | **226 ions/s** | **6.4x** |
+Typical runtimes with Cython:
+- 100 ions: ~0.4 s
+- 1000 ions: ~4.5 s
+- 10000 ions: ~45 s
 
-**Typische Simulationszeiten (mit Cython):**
-- 100 Ionen: ~0.4 s
-- 1000 Ionen: ~4.5 s
-- 10000 Ionen: ~45 s
+Without Cython (pure Python):
+- 100 ions: ~3 s
+- 1000 ions: ~28 s
+- 10000 ions: ~280 s (~4.7 min)
 
-**Ohne Cython (Pure Python):**
-- 100 Ionen: ~3 s
-- 1000 Ionen: ~28 s
-- 10000 Ionen: ~280 s (4.7 min)
-
-### Performance-Test ausführen
-
+### Run the Benchmarks
 ```bash
-# Einfacher Benchmark
 python benchmark.py 1000
-
-# Vergleich Python vs Cython
-python compare_performance.py
-
-# Test des Cython-Toggle Features
-python test_toggle.py
+python compare_performance.py   # Python vs Cython comparison
+python test_toggle.py           # Validate the runtime toggle feature
 ```
 
-### Programmatische Steuerung
-
-Das Cython-Toggle Feature kann auch programmatisch verwendet werden:
-
+## Programmatic Control
 ```python
 from pytrim import (
     is_cython_available,
-    is_using_cython, 
+    is_using_cython,
     set_use_cython,
-    TRIMSimulation,
-    SimulationParameters
 )
 
-# Prüfe Cython-Verfügbarkeit
 if is_cython_available():
-    print("Cython-Module verfügbar!")
-    
-# Wechsle zu Cython für Performance
+    print("Cython modules are available!")
+
 set_use_cython(True)
-
-# Führe Simulation aus
-params = SimulationParameters(n_ions=1000)
-sim = TRIMSimulation(params)
-results = sim.run()
-
-# Prüfe verwendeten Modus
-mode = "Cython" if is_using_cython() else "Python"
-print(f"Simulation lief mit: {mode}")
+print("Using Cython:" if is_using_cython() else "Using Python:")
 ```
+See [API.md](API.md) and [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md) for the full API surface.
 
-Weitere Details: [API.md](API.md) und [TOGGLE_FEATURE.md](TOGGLE_FEATURE.md)
+## Assumptions & Limitations
+- Amorphous target; crystal channeling is not modeled.
+- Constant mean free path (collision probability independent of ion energy or angle).
+- Only primary ions are tracked; recoil cascades are currently not propagated.
+- Planar geometry is the baseline; advanced geometries are parameterized shapes.
+- Electronic stopping follows Lindhard with a global correction factor.
 
-## Annahmen und Grenzen
-
-- Amorphes Target; keine Kristallkanalisation.
-- Konstante mittlere freie Weglänge (einfaches Modell; keine Energie‑/Winkelabhängigkeit der Kollisionswahrscheinlichkeit).
-- Nur Primärionen werden verfolgt; Rekoilkaskaden werden nicht weiter simuliert.
-- Einfache planare Geometrie in z‑Richtung.
-- Elektronisches Stopping: Lindhard‑Modell mit globalem Korrekturfaktor.
-
-## Referenzen
-
-- J. F. Ziegler, J. P. Biersack, U. Littmark: The Stopping and Range of Ions in Matter, Pergamon Press, 1985 (ZBL‑Potential).
-- J. Lindhard, M. Scharff, H. E. Schiøtt: Range Concepts and Heavy Ion Ranges in Solids, Mat. Fys. Medd. Dan. Vid. Selsk. 33 (1963). Siehe auch Phys. Rev. 124 (1961) 128 für das Stopping‑Modell.
+## References
+- J. F. Ziegler, J. P. Biersack, U. Littmark, *The Stopping and Range of Ions in Matter*, Pergamon Press, 1985 (ZBL potential).
+- J. Lindhard, M. Scharff, H. E. Schiøtt, *Range Concepts and Heavy Ion Ranges in Solids*, Mat. Fys. Medd. Dan. Vid. Selsk. 33 (1963); see also *Phys. Rev.* 124 (1961) 128.
 - SRIM/TRIM: https://www.srim.org/
 
-## Lizenz
+## License
+See `LICENSE` in the repository root.
 
-Siehe `LICENSE` im Repository‑Wurzelverzeichnis.
+## Documentation
+- [QUICKSTART.md](QUICKSTART.md): quick-start guide for the GUI.
+- [API.md](API.md): API usage and examples.
+- [CYTHON.md](CYTHON.md): details on the Cython build and optimization.
+- [CHANGELOG.md](CHANGELOG.md): version history and feature summaries.
 
-## Dokumentation
-
-- **[QUICKSTART.md](QUICKSTART.md)**: Schnellstartanleitung für die GUI
-- **[API.md](API.md)**: API-Dokumentation für programmatische Nutzung
-- **[CYTHON.md](CYTHON.md)**: Technische Details zur Cython-Optimierung
-- **[CHANGELOG.md](CHANGELOG.md)**: Übersicht über alle Änderungen und neue Features
-
-## Kontakt & Support
-
-Bei Fragen oder Problemen:
-1. Siehe Dokumentation (QUICKSTART.md, README.md)
-2. Prüfe bekannte Probleme in QUICKSTART.md
-3. Erstelle ein Issue auf GitHub
+## Contact & Support
+1. Review the documentation (QUICKSTART.md, README.md).
+2. Check troubleshooting notes in QUICKSTART.md.
+3. Open an issue on GitHub if you need further assistance.

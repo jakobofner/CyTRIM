@@ -7,7 +7,7 @@
   - Zeigt ob Cython oder Python verwendet wird
   - ⚡ Grüne Anzeige bei aktivem Cython (~6.4x schneller)
   - 🐍 Orange Anzeige bei Python Fallback mit Build-Hinweis
-  - Durchsatz-Anzeige in Ergebnissen (Ionen/Sekunde)
+  - Durchsatz-Anzeige in Resultsen (Ionen/Sekunde)
   
 ### 📦 Neue Dateien
 ```
@@ -18,21 +18,21 @@ GUI_LAYOUT.md                 # Visuelle Dokumentation der GUI
 ### 🎨 GUI-Verbesserungen
 - Performance-Box im linken Panel
 - Farbcodierung: Grün (Cython) / Orange (Python)
-- Performance-Info in Ergebnistabelle
+- Performance-Info in Resulttabelle
 - Durchsatz-Anzeige nach Simulation
 
 ## Version 1.1.0 - Cython-Optimierung
 
 ### 🚀 Performance-Verbesserungen
 - **Cython-Implementierung** aller rechenintensiven Module
-- **6.4x Geschwindigkeitssteigerung** gegenüber Pure Python
-- Automatischer Fallback auf Python wenn Cython nicht verfügbar
+- **6.4x Velocityssteigerung** gegenüber Pure Python
+- Automatischer Fallback auf Python wenn Cython nicht available
 - Optimierte C-Code-Generierung mit `-O3 -ffast-math -march=native`
 
 ### 📦 Neue Dateien
 ```
 cytrim/estop.pyx              # Cython: Elektronisches Stopping
-cytrim/scatter.pyx            # Cython: ZBL-Streuung
+cytrim/scatter.pyx            # Cython: ZBL-Scattering
 cytrim/geometry.pyx           # Cython: Target-Geometrie
 cytrim/select_recoil.pyx      # Cython: Kollisionsgeometrie
 cytrim/trajectory.pyx         # Cython: Trajektorien-Simulation
@@ -43,7 +43,7 @@ benchmark.py                  # Performance-Benchmark
 compare_performance.py        # Python vs Cython Vergleich
 ```
 
-### ⚡ Benchmark-Ergebnisse
+### ⚡ Benchmark-Resultse
 - Pure Python: 14.2s für 500 Ionen (35 ions/s)
 - Cython: 2.2s für 500 Ionen (226 ions/s)
 - **Speedup: 6.4x**
@@ -57,34 +57,34 @@ compare_performance.py        # Python vs Cython Vergleich
 
 ## Version 1.0.0 - Initiale GUI-Version
 
-## Neue Features
+## New Features
 
 ### 🎨 Moderne PyQt6-Benutzeroberfläche
 - **Vollständige GUI** mit intuitiver Bedienung
-- **Parametereingabe** über Eingabefelder statt Code-Bearbeitung
+- **Parameterseingabe** über Eingabefelder statt Code-Bearbeitung
 - **Echtzeit-Fortschrittsanzeige** während der Simulation
 - **Start/Stop-Buttons** zur Kontrolle der Simulation
 
 ### 📊 Visualisierung
-- **Trajektorien-Plot**: Visualisierung der ersten 10 Ion-Pfade (x-z-Projektion)
+- **Trajektorien-Plot**: Visualisierung der ersten 10 Ion-Pfade (x-z-Projection)
 - **Stopptiefe-Histogramm**: Verteilung aller finalen Positionen mit Mittelwert
 - **Interaktive Plots**: Zoom, Pan, Export über matplotlib-Toolbar
 - **Tab-basierte Navigation** zwischen verschiedenen Ansichten
 
 ### 🔧 Verbesserte Architektur
 - **Simulationsklasse** (`TRIMSimulation`): Wiederverwendbare API
-- **Parameter-Objekt** (`SimulationParameters`): Saubere Parameter-Verwaltung
-- **Ergebnis-Objekt** (`SimulationResults`): Strukturierte Ausgabe
+- **Parameters-Objekt** (`SimulationParameterss`): Saubere Parameters-Verwaltung
+- **Result-Objekt** (`SimulationResults`): Strukturierte Ausgabe
 - **Threading**: GUI bleibt während Simulation reaktiv
 - **Modular**: Kann auch programmatisch genutzt werden
 
 ### 💾 Datenexport
-- **Ergebnisse exportieren**: Statistiken und Stopptiefen als Textdatei
+- **Resultse exportieren**: Statistiken und Stopptiefen als Textdatei
 - **Format**: Einfach weiterverarbeitbar (z.B. in Excel, Python, etc.)
 
-## Dateistruktur
+## File Structure
 
-### Neu erstellte Dateien
+### Newly Created Files
 ```
 pytrim_gui.py                 # Haupt-GUI-Anwendung
 pytrim/simulation.py          # Simulationsklassen und API
@@ -96,67 +96,67 @@ QUICKSTART.md                 # Schnellstartanleitung
 API.md                        # API-Dokumentation
 ```
 
-### Geänderte Dateien
+### Modified Files
 ```
 pytrim/trajectory.py          # Erweitert um trajectory_with_path()
 README.md                     # Aktualisiert mit GUI-Anleitung
 ```
 
-### Unverändert (Kern-Physik)
+### Unchanged (Core Physics)
 ```
 pytrim/estop.py              # Elektronisches Stopping
-pytrim/scatter.py            # ZBL-Streuung
+pytrim/scatter.py            # ZBL-Scattering
 pytrim/select_recoil.py      # Kollisionsgeometrie
 pytrim/geometry.py           # Target-Geometrie
 pytrim/pytrim.py             # Original-Skript (legacy)
 ```
 
-## Technische Details
+## Technical Details
 
-### Abhängigkeiten
+### Dependencies
 - **NumPy** >= 1.20.0: Numerische Berechnungen
 - **PyQt6** >= 6.4.0: GUI-Framework
 - **Matplotlib** >= 3.5.0: Plotting und Visualisierung
 
-### Threading-Architektur
+### Threading Architecture
 - Simulation läuft in separatem QThread
 - Progress-Updates über Qt-Signals
 - GUI bleibt reaktiv, kann Simulation stoppen
 
-### Plot-Integration
+### Plot Integration
 - matplotlib FigureCanvas in PyQt6 eingebettet
 - NavigationToolbar für Interaktivität
 - Automatisches Update nach Simulation
 
-## Migration von alter Version
+## Migration from Old Version
 
-### Für Nutzer
+### For Users
 **Alt:**
 ```bash
-# Parameter in pytrim/pytrim.py editieren
+# Parameters in pytrim/pytrim.py editieren
 python pytrim/pytrim.py
 ```
 
 **Neu:**
 ```bash
 ./run_gui.sh
-# Parameter in GUI eingeben
+# Parameters in GUI eingeben
 ```
 
-### Für Entwickler
+### For Developers
 **Alt:**
 ```python
-# Parameter hardcodiert in pytrim.py
+# Parameters hardcodiert in pytrim.py
 ```
 
 **Neu:**
 ```python
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
-params = SimulationParameters()
+params = SimulationParameterss()
 params.nion = 1000
 params.e_init = 50000
-# ... weitere Parameter
+# ... weitere Parameters
 
 sim = TRIMSimulation(params)
 results = sim.run()
@@ -169,23 +169,23 @@ results = sim.run()
 - Nur planare Target-Geometrie
 - Keine Kristall-Channeling-Effekte
 
-## Zukünftige Erweiterungen (möglich)
+## Future Extensions (möglich)
 
-- [ ] Parameter-Presets (z.B. "B in Si", "As in GaAs")
+- [ ] Parameters-Presets (z.B. "B in Si", "As in GaAs")
 - [ ] Plot-Export als PNG/PDF
-- [ ] Batch-Simulationen (Energie-Scan, etc.)
+- [ ] Batch-Simulationen (Energy-Scan, etc.)
 - [ ] 3D-Visualisierung der Trajektorien
-- [ ] Rekoil-Kaskaden verfolgen
+- [ ] Rekoil-Kaskaden track
 - [ ] Multi-Layer-Targets
 - [ ] Parallel-Processing für schnellere Simulation
 
-## Kompatibilität
+## Compatibility
 
 - **Python**: >= 3.8 (getestet mit 3.8, 3.9, 3.10, 3.11)
 - **OS**: Linux, macOS, Windows
 - **Qt**: PyQt6 (Qt 6.x)
 
-## Installation & Start
+## Installation & Startup
 
 Siehe `QUICKSTART.md` für detaillierte Anleitung.
 
@@ -193,5 +193,5 @@ Siehe `QUICKSTART.md` für detaillierte Anleitung.
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-./run_gui.sh  # oder: .venv/bin/python pytrim_gui.py
+./run_gui.sh  # or: .venv/bin/python pytrim_gui.py
 ```

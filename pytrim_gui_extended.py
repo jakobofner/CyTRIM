@@ -44,7 +44,7 @@ class GeometryParameterWidget(QGroupBox):
     """Dynamic widget for geometry-specific parameters."""
     
     def __init__(self, parent=None):
-        super().__init__("Geometrie-Parameter", parent)
+        super().__init__("Geometry Parameters", parent)
         self.layout = QGridLayout()
         self.setLayout(self.layout)
         self.param_widgets = {}
@@ -67,7 +67,7 @@ class GeometryParameterWidget(QGroupBox):
         row = 0
         
         if geometry_type == "planar":
-            self.layout.addWidget(QLabel("(Keine zusätzlichen Parameter)"), 0, 0, 1, 2)
+            self.layout.addWidget(QLabel("(No additional parameters)"), 0, 0, 1, 2)
             
         elif geometry_type == "box":
             # x_min, x_max, y_min, y_max
@@ -106,7 +106,7 @@ class GeometryParameterWidget(QGroupBox):
             self.layout.addWidget(self.param_widgets['radius'], row, 1)
             row += 1
             
-            self.layout.addWidget(QLabel("Achse:"), row, 0)
+            self.layout.addWidget(QLabel("Axis:"), row, 0)
             self.param_widgets['axis'] = QComboBox()
             self.param_widgets['axis'].addItems(['z', 'x', 'y'])
             self.layout.addWidget(self.param_widgets['axis'], row, 1)
@@ -119,28 +119,28 @@ class GeometryParameterWidget(QGroupBox):
             self.layout.addWidget(self.param_widgets['radius'], row, 1)
             row += 1
             
-            self.layout.addWidget(QLabel("Zentrum x (Å):"), row, 0)
+            self.layout.addWidget(QLabel("Center x (Å):"), row, 0)
             self.param_widgets['center_x'] = QDoubleSpinBox()
             self.param_widgets['center_x'].setRange(-100000, 100000)
             self.param_widgets['center_x'].setValue(0.0)
             self.layout.addWidget(self.param_widgets['center_x'], row, 1)
             row += 1
             
-            self.layout.addWidget(QLabel("Zentrum y (Å):"), row, 0)
+            self.layout.addWidget(QLabel("Center y (Å):"), row, 0)
             self.param_widgets['center_y'] = QDoubleSpinBox()
             self.param_widgets['center_y'].setRange(-100000, 100000)
             self.param_widgets['center_y'].setValue(0.0)
             self.layout.addWidget(self.param_widgets['center_y'], row, 1)
             row += 1
             
-            self.layout.addWidget(QLabel("Zentrum z (Å):"), row, 0)
+            self.layout.addWidget(QLabel("Center z (Å):"), row, 0)
             self.param_widgets['center_z'] = QDoubleSpinBox()
             self.param_widgets['center_z'].setRange(-100000, 100000)
             self.param_widgets['center_z'].setValue(2000.0)
             self.layout.addWidget(self.param_widgets['center_z'], row, 1)
             
         elif geometry_type == "multilayer":
-            self.layout.addWidget(QLabel("Schicht-Dicken (Å):"), row, 0)
+            self.layout.addWidget(QLabel("Layer Thicknesses (Å):"), row, 0)
             self.param_widgets['layer_thicknesses'] = QLineEdit()
             self.param_widgets['layer_thicknesses'].setText("1000, 500, 2500")
             self.param_widgets['layer_thicknesses'].setPlaceholderText("z.B.: 1000, 500, 2500")
@@ -183,7 +183,7 @@ class PresetDialog(QDialog):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Material-Preset auswählen")
+        self.setWindowTitle("Select Material Preset")
         self.preset_manager = get_preset_manager()
         self.selected_preset = None
         self._init_ui()
@@ -200,7 +200,7 @@ class PresetDialog(QDialog):
             self.preset_list.addItem(item_text)
         self.preset_list.currentRowChanged.connect(self.on_selection_changed)
         self.preset_list.doubleClicked.connect(self.accept)
-        layout.addWidget(QLabel("Verfügbare Presets:"))
+        layout.addWidget(QLabel("Available Presets:"))
         layout.addWidget(self.preset_list)
         
         # Info display
@@ -237,11 +237,11 @@ class PresetDialog(QDialog):
         
         info = f"<b>{preset.name}</b><br>"
         info += f"{preset.description}<br><br>"
-        info += f"<b>Projektil:</b> {preset.element1} (Z={preset.z1}, M={preset.m1} amu)<br>"
+        info += f"<b>Projectile:</b> {preset.element1} (Z={preset.z1}, M={preset.m1} amu)<br>"
         info += f"<b>Target:</b> {preset.element2} (Z={preset.z2}, M={preset.m2} amu)<br>"
-        info += f"<b>Dichte:</b> {preset.density:.5f} atoms/Å³<br>"
-        info += f"<b>Energie:</b> {preset.energy:.0f} eV<br>"
-        info += f"<b>Geometrie:</b> {preset.geometry_type}<br>"
+        info += f"<b>Density:</b> {preset.density:.5f} atoms/Å³<br>"
+        info += f"<b>Energy:</b> {preset.energy:.0f} eV<br>"
+        info += f"<b>Geometry:</b> {preset.geometry_type}<br>"
         
         self.info_text.setHtml(info)
         self.selected_preset = preset
@@ -255,7 +255,7 @@ class ExtendedParameterWidget(QGroupBox):
     """Extended parameter widget with geometry and preset support."""
     
     def __init__(self, parent=None):
-        super().__init__("Simulationsparameter", parent)
+        super().__init__("Simulation Parameters", parent)
         self._init_ui()
         
     def _init_ui(self):
@@ -264,7 +264,7 @@ class ExtendedParameterWidget(QGroupBox):
         
         # Preset selector
         preset_layout = QHBoxLayout()
-        preset_button = QPushButton("Preset laden...")
+        preset_button = QPushButton("Load Preset...")
         preset_button.clicked.connect(self.load_preset)
         preset_layout.addWidget(preset_button)
         preset_layout.addStretch()
@@ -279,7 +279,7 @@ class ExtendedParameterWidget(QGroupBox):
         row = 0
         
         # Number of ions
-        basic_layout.addWidget(QLabel("Anzahl Ionen:"), row, 0)
+        basic_layout.addWidget(QLabel("Number of Ions:"), row, 0)
         self.nion_spin = QSpinBox()
         self.nion_spin.setRange(1, 1000000)
         self.nion_spin.setValue(1000)
@@ -288,14 +288,14 @@ class ExtendedParameterWidget(QGroupBox):
         row += 1
         
         # Projectile
-        basic_layout.addWidget(QLabel("Projektil Z:"), row, 0)
+        basic_layout.addWidget(QLabel("Projectile Z:"), row, 0)
         self.z1_spin = QSpinBox()
         self.z1_spin.setRange(1, 118)
         self.z1_spin.setValue(5)
         basic_layout.addWidget(self.z1_spin, row, 1)
         row += 1
         
-        basic_layout.addWidget(QLabel("Projektil Masse (amu):"), row, 0)
+        basic_layout.addWidget(QLabel("Projectile Mass (amu):"), row, 0)
         self.m1_spin = QDoubleSpinBox()
         self.m1_spin.setRange(1.0, 300.0)
         self.m1_spin.setValue(11.009)
@@ -311,7 +311,7 @@ class ExtendedParameterWidget(QGroupBox):
         basic_layout.addWidget(self.z2_spin, row, 1)
         row += 1
         
-        basic_layout.addWidget(QLabel("Target Masse (amu):"), row, 0)
+        basic_layout.addWidget(QLabel("Target Mass (amu):"), row, 0)
         self.m2_spin = QDoubleSpinBox()
         self.m2_spin.setRange(1.0, 300.0)
         self.m2_spin.setValue(28.086)
@@ -319,7 +319,7 @@ class ExtendedParameterWidget(QGroupBox):
         basic_layout.addWidget(self.m2_spin, row, 1)
         row += 1
         
-        basic_layout.addWidget(QLabel("Dichte (Atome/Å³):"), row, 0)
+        basic_layout.addWidget(QLabel("Density (atoms/Å³):"), row, 0)
         self.density_spin = QDoubleSpinBox()
         self.density_spin.setRange(0.001, 1.0)
         self.density_spin.setValue(0.04994)
@@ -328,7 +328,7 @@ class ExtendedParameterWidget(QGroupBox):
         basic_layout.addWidget(self.density_spin, row, 1)
         row += 1
         
-        basic_layout.addWidget(QLabel("Lindhard Korrektur:"), row, 0)
+        basic_layout.addWidget(QLabel("Lindhard Correction:"), row, 0)
         self.corr_spin = QDoubleSpinBox()
         self.corr_spin.setRange(0.1, 10.0)
         self.corr_spin.setValue(1.5)
@@ -337,7 +337,7 @@ class ExtendedParameterWidget(QGroupBox):
         basic_layout.addWidget(self.corr_spin, row, 1)
         row += 1
         
-        basic_layout.addWidget(QLabel("Anfangsenergie (eV):"), row, 0)
+        basic_layout.addWidget(QLabel("Initial Energy (eV):"), row, 0)
         self.e_init_spin = QDoubleSpinBox()
         self.e_init_spin.setRange(100, 1000000)
         self.e_init_spin.setValue(50000.0)
@@ -347,7 +347,7 @@ class ExtendedParameterWidget(QGroupBox):
         
         basic_layout.setRowStretch(row + 1, 1)
         basic_widget.setLayout(basic_layout)
-        tabs.addTab(basic_widget, "Basis-Parameter")
+        tabs.addTab(basic_widget, "Basic Parameters")
         
         # === Geometry Tab ===
         geom_widget = QWidget()
@@ -355,7 +355,7 @@ class ExtendedParameterWidget(QGroupBox):
         
         # Geometry type selector
         geom_type_layout = QHBoxLayout()
-        geom_type_layout.addWidget(QLabel("Geometrie-Typ:"))
+        geom_type_layout.addWidget(QLabel("Geometry Type:"))
         self.geometry_combo = QComboBox()
         self.geometry_combo.addItems(["planar", "box", "cylinder", "sphere", "multilayer"])
         self.geometry_combo.currentTextChanged.connect(self.on_geometry_changed)
@@ -385,7 +385,7 @@ class ExtendedParameterWidget(QGroupBox):
         
         geom_layout.addStretch()
         geom_widget.setLayout(geom_layout)
-        tabs.addTab(geom_widget, "Geometrie")
+        tabs.addTab(geom_widget, "Geometry")
         
         # === Beam Parameters Tab ===
         beam_widget = QWidget()
@@ -416,7 +416,7 @@ class ExtendedParameterWidget(QGroupBox):
         row += 1
         
         # Initial direction
-        beam_layout.addWidget(QLabel("Richtung:"), row, 0)
+        beam_layout.addWidget(QLabel("Direction:"), row, 0)
         dir_layout = QHBoxLayout()
         self.dir_x_spin = QDoubleSpinBox()
         self.dir_x_spin.setRange(-1, 1)
@@ -442,7 +442,7 @@ class ExtendedParameterWidget(QGroupBox):
         
         beam_layout.setRowStretch(row + 1, 1)
         beam_widget.setLayout(beam_layout)
-        tabs.addTab(beam_widget, "Strahl")
+        tabs.addTab(beam_widget, "Beam")
         
         layout.addWidget(tabs)
         self.setLayout(layout)
@@ -520,7 +520,7 @@ class ExportDialog(QDialog):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Ergebnisse exportieren")
+        self.setWindowTitle("Export Results")
         self.format = None
         self.filepath = None
         self._init_ui()
@@ -530,30 +530,30 @@ class ExportDialog(QDialog):
         layout = QVBoxLayout()
         
         # Format selection
-        format_group = QGroupBox("Export-Format")
+        format_group = QGroupBox("Export Format")
         format_layout = QVBoxLayout()
         
         self.format_combo = QComboBox()
         self.format_combo.addItems([
-            "CSV (Daten-Tabelle)",
-            "JSON (Strukturierte Daten)",
+            "CSV (Data Table)",
+            "JSON (Structured Data)",
             "VTK (ParaView/3D)",
-            "PNG (Hochauflösende Plots)",
-            "Alle Formate"
+            "PNG (High-Resolution Plots)",
+            "All Formats"
         ])
         format_layout.addWidget(self.format_combo)
         format_group.setLayout(format_layout)
         layout.addWidget(format_group)
         
         # Options
-        options_group = QGroupBox("Optionen")
+        options_group = QGroupBox("Options")
         options_layout = QVBoxLayout()
         
-        self.include_trajectories = QCheckBox("Trajektorien einschließen")
+        self.include_trajectories = QCheckBox("Include trajectories")
         self.include_trajectories.setChecked(True)
         options_layout.addWidget(self.include_trajectories)
         
-        self.high_dpi = QCheckBox("Hochauflösend (300 DPI)")
+        self.high_dpi = QCheckBox("High Resolution (300 DPI)")
         self.high_dpi.setChecked(True)
         options_layout.addWidget(self.high_dpi)
         
@@ -614,19 +614,19 @@ class ExtendedMainWindow(QMainWindow):
         left_layout.addWidget(self.param_widget)
         
         # Controls
-        control_group = QGroupBox("Steuerung")
+        control_group = QGroupBox("Control")
         control_layout = QVBoxLayout()
         
-        self.start_button = QPushButton("🚀 Simulation starten")
+        self.start_button = QPushButton("🚀 Start Simulation")
         self.start_button.clicked.connect(self.start_simulation)
         control_layout.addWidget(self.start_button)
         
-        self.stop_button = QPushButton("⏹ Stoppen")
+        self.stop_button = QPushButton("⏹ Stop")
         self.stop_button.clicked.connect(self.stop_simulation)
         self.stop_button.setEnabled(False)
         control_layout.addWidget(self.stop_button)
         
-        self.export_button = QPushButton("💾 Exportieren...")
+        self.export_button = QPushButton("💾 Export...")
         self.export_button.clicked.connect(self.export_results)
         self.export_button.setEnabled(False)
         control_layout.addWidget(self.export_button)
@@ -635,11 +635,11 @@ class ExtendedMainWindow(QMainWindow):
         left_layout.addWidget(control_group)
         
         # Progress
-        progress_group = QGroupBox("Fortschritt")
+        progress_group = QGroupBox("Progress")
         progress_layout = QVBoxLayout()
         self.progress_bar = QProgressBar()
         progress_layout.addWidget(self.progress_bar)
-        self.progress_label = QLabel("Bereit")
+        self.progress_label = QLabel("Ready")
         progress_layout.addWidget(self.progress_label)
         progress_group.setLayout(progress_layout)
         left_layout.addWidget(progress_group)
@@ -652,7 +652,7 @@ class ExtendedMainWindow(QMainWindow):
         perf_layout.addWidget(self.perf_label)
         
         if is_cython_available():
-            self.cython_toggle = QCheckBox("⚡ Cython verwenden")
+            self.cython_toggle = QCheckBox("⚡ Use Cython")
             self.cython_toggle.setChecked(is_using_cython())
             self.cython_toggle.stateChanged.connect(self.toggle_cython)
             perf_layout.addWidget(self.cython_toggle)
@@ -674,7 +674,7 @@ class ExtendedMainWindow(QMainWindow):
         self.tab_widget = QTabWidget()
         
         # 3D trajectories
-        self._add_plot_tab("3D Trajektorien", PlotCanvas3D, 'traj3d_canvas')
+        self._add_plot_tab("3D Trajectories", PlotCanvas3D, 'traj3d_canvas')
         
         # 2D projections
         self._add_plot_tab("2D (x-z)", PlotCanvas, 'traj2d_xz_canvas')
@@ -689,10 +689,10 @@ class ExtendedMainWindow(QMainWindow):
         self._add_plot_tab("Energie-Verlust", EnergyLossCanvas, 'energy_canvas')
         
         # Radial distribution
-        self._add_plot_tab("Radiale Verteilung", RadialDistributionCanvas, 'radial_canvas')
+        self._add_plot_tab("Radial Distribution", RadialDistributionCanvas, 'radial_canvas')
         
         # Histogram
-        self._add_plot_tab("Stopptiefe-Verteilung", PlotCanvas, 'hist_canvas')
+        self._add_plot_tab("Stopping Depth Distribution", PlotCanvas, 'hist_canvas')
         
         # Results text
         results_widget = QWidget()
@@ -702,7 +702,7 @@ class ExtendedMainWindow(QMainWindow):
         self.results_text.setFont(QFont("Courier", 10))
         results_layout.addWidget(self.results_text)
         results_widget.setLayout(results_layout)
-        self.tab_widget.addTab(results_widget, "📊 Ergebnisse")
+        self.tab_widget.addTab(results_widget, "📊 Results")
         
         right_layout.addWidget(self.tab_widget)
         
@@ -747,7 +747,7 @@ class ExtendedMainWindow(QMainWindow):
             self.cython_toggle.blockSignals(True)
             self.cython_toggle.setChecked(False)
             self.cython_toggle.blockSignals(False)
-            QMessageBox.warning(self, "Fehler", "Cython konnte nicht aktiviert werden")
+            QMessageBox.warning(self, "Error", "Could not enable Cython")
     
     def start_simulation(self):
         """Start simulation."""
@@ -757,7 +757,7 @@ class ExtendedMainWindow(QMainWindow):
         dir_vec = np.array([params.dir_x, params.dir_y, params.dir_z])
         norm = np.linalg.norm(dir_vec)
         if norm == 0:
-            QMessageBox.warning(self, "Fehler", "Richtungsvektor ungültig!")
+            QMessageBox.warning(self, "Error", "Invalid direction vector!")
             return
         params.dir_x /= norm
         params.dir_y /= norm
@@ -778,7 +778,7 @@ class ExtendedMainWindow(QMainWindow):
         if self.cython_toggle:
             self.cython_toggle.setEnabled(False)
         self.progress_bar.setValue(0)
-        self.progress_label.setText("Simulation läuft...")
+        self.progress_label.setText("Simulation running...")
         
         self.sim_thread.start()
     
@@ -805,7 +805,7 @@ class ExtendedMainWindow(QMainWindow):
         if self.cython_toggle:
             self.cython_toggle.setEnabled(True)
         self.progress_bar.setValue(100)
-        self.progress_label.setText("Abgeschlossen!")
+        self.progress_label.setText("Completed!")
         
         # Display results
         self.results_text.setText(results.get_summary())
@@ -845,8 +845,8 @@ class ExtendedMainWindow(QMainWindow):
         self.param_widget.set_enabled(True)
         if self.cython_toggle:
             self.cython_toggle.setEnabled(True)
-        self.progress_label.setText("Fehler!")
-        QMessageBox.critical(self, "Fehler", f"Simulation fehlgeschlagen:\n{error_msg}")
+        self.progress_label.setText("Error!")
+        QMessageBox.critical(self, "Error", f"Simulation failed:\n{error_msg}")
     
     def export_results(self):
         """Export results in selected format."""
@@ -862,7 +862,7 @@ class ExtendedMainWindow(QMainWindow):
         
         # Get base filename
         base_file, _ = QFileDialog.getSaveFileName(
-            self, "Export speichern unter", "", "All Files (*)"
+            self, "Save Export As", "", "All Files (*)"
         )
         
         if not base_file:
@@ -897,11 +897,11 @@ class ExtendedMainWindow(QMainWindow):
                 ]
                 export.export_all_plots(canvases, base_path, options['dpi'])
             
-            QMessageBox.information(self, "Export erfolgreich", 
-                                  f"Daten erfolgreich exportiert nach:\n{base_path.parent}")
+            QMessageBox.information(self, "Export Successful", 
+                                  f"Data successfully exported to:\n{base_path.parent}")
         
         except Exception as e:
-            QMessageBox.critical(self, "Export-Fehler", f"Fehler beim Export:\n{str(e)}")
+            QMessageBox.critical(self, "Export Error", f"Error during export:\n{str(e)}")
 
 
 def main():

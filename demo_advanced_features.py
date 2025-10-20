@@ -24,20 +24,20 @@ def demo_presets():
     
     manager = get_preset_manager()
     
-    print("\nVerfügbare Presets:")
+    print("\nAvailable Presets:")
     for name in manager.get_preset_names():
         preset = manager.get_preset(name)
         print(f"  - {name}: {preset.description}")
     
     # Load B in Si preset
-    print("\nLade 'B in Si' Preset...")
+    print("\nLoading 'B in Si' Preset...")
     preset = manager.get_preset("B in Si")
     
     print(f"\nPreset Details:")
-    print(f"  Projektil: {preset.element1} (Z={preset.z1}, M={preset.m1} amu)")
+    print(f"  Projectile: {preset.element1} (Z={preset.z1}, M={preset.m1} amu)")
     print(f"  Target: {preset.element2} (Z={preset.z2}, M={preset.m2} amu)")
-    print(f"  Energie: {preset.energy:.0f} eV")
-    print(f"  Dichte: {preset.density:.5f} atoms/Å³")
+    print(f"  Energy: {preset.energy:.0f} eV")
+    print(f"  Density: {preset.density:.5f} atoms/Å³")
     
     # Create simulation from preset
     params = SimulationParameters()
@@ -52,20 +52,20 @@ def demo_presets():
     params.zmin = preset.zmin
     params.zmax = preset.zmax
     
-    print(f"\nStarte Simulation mit {params.nion} Ionen...")
+    print(f"\nStarting simulation with {params.nion} ions...")
     sim = TRIMSimulation(params)
     results = sim.run(record_trajectories=False)
     
-    print(f"\nErgebnisse:")
-    print(f"  Gestoppt: {results.count_inside}/{results.total_ions}")
-    print(f"  Mittlere Tiefe: {results.mean_z:.1f} ± {results.std_z:.1f} Å")
-    print(f"  Laterale Streuung: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
+    print(f"\nResults:")
+    print(f"  Stopped: {results.count_inside}/{results.total_ions}")
+    print(f"  Mean depth: {results.mean_z:.1f} ± {results.std_z:.1f} Å")
+    print(f"  Lateral spread: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
     
 
 def demo_geometries():
     """Demonstrate different geometry types."""
     print("\n" + "="*60)
-    print("DEMO 2: Verschiedene Geometrien")
+    print("DEMO 2: Different Geometries")
     print("="*60)
     
     geometries = [
@@ -89,7 +89,7 @@ def demo_geometries():
     base_params.zmax = 4000
     
     for geom_type, geom_params in geometries:
-        print(f"\n--- Geometrie: {geom_type.upper()} ---")
+        print(f"\n--- Geometry: {geom_type.upper()} ---")
         
         # Create new params with same values
         import copy
@@ -98,13 +98,13 @@ def demo_geometries():
         params.geometry_params = geom_params
         
         if geom_params:
-            print(f"Parameter: {geom_params}")
+            print(f"Parameters: {geom_params}")
         
         sim = TRIMSimulation(params)
         results = sim.run(record_trajectories=False)
         
-        print(f"Gestoppt: {results.count_inside}/{results.total_ions}")
-        print(f"Mittlere Tiefe: {results.mean_z:.1f} Å")
+        print(f"Stopped: {results.count_inside}/{results.total_ions}")
+        print(f"Mean depth: {results.mean_z:.1f} Å")
 
 
 def demo_export():
@@ -172,20 +172,20 @@ def demo_export():
 def demo_visualizations(results, params):
     """Demonstrate advanced visualizations."""
     print("\n" + "="*60)
-    print("DEMO 4: Erweiterte Visualisierungen")
+    print("DEMO 4: Advanced Visualizations")
     print("="*60)
     
     if not results.trajectories:
-        print("Keine Trajektorien verfügbar für Demo.")
+        print("No trajectories available for demo.")
         return
     
-    print("\nErzeuge Plots...")
+    print("\nGenerating plots...")
     
     # Create figure with subplots
     fig = plt.figure(figsize=(15, 10))
     
     # 1. Energy vs Depth
-    print("  - Energie vs. Tiefe...")
+    print("  - Energy vs. Depth...")
     ax1 = fig.add_subplot(2, 3, 1)
     for traj in results.trajectories[:5]:  # First 5
         traj_arr = np.array(traj)
@@ -194,13 +194,13 @@ def demo_visualizations(results, params):
         ax1.plot(z, e, alpha=0.6, linewidth=1)
     ax1.axvline(params.zmin, color='red', linestyle='--', alpha=0.5)
     ax1.axvline(params.zmax, color='red', linestyle='--', alpha=0.5)
-    ax1.set_xlabel('Tiefe (Å)')
-    ax1.set_ylabel('Energie (keV)')
-    ax1.set_title('Energie-Verlust')
+    ax1.set_xlabel('Depth (Å)')
+    ax1.set_ylabel('Energy (keV)')
+    ax1.set_title('Energy Loss')
     ax1.grid(True, alpha=0.3)
     
     # 2. Depth histogram
-    print("  - Stopptiefe-Verteilung...")
+    print("  - Stopping depth distribution...")
     ax2 = fig.add_subplot(2, 3, 2)
     if results.stopped_depths:
         ax2.hist(results.stopped_depths, bins=30, alpha=0.7, edgecolor='black')
@@ -210,9 +210,9 @@ def demo_visualizations(results, params):
                    linestyle=':', alpha=0.7)
         ax2.axvline(results.mean_z + results.std_z, color='orange', 
                    linestyle=':', alpha=0.7, label=f'±σ: {results.std_z:.1f} Å')
-    ax2.set_xlabel('Stopptiefe (Å)')
-    ax2.set_ylabel('Anzahl')
-    ax2.set_title('Stopptiefe-Verteilung')
+    ax2.set_xlabel('Stopping Depth (Å)')
+    ax2.set_ylabel('Count')
+    ax2.set_title('Stopping Depth Distribution')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
     
@@ -227,15 +227,15 @@ def demo_visualizations(results, params):
         extent = [zedges[0], zedges[-1], xedges[0], xedges[-1]]
         im = ax3.imshow(h, extent=extent, origin='lower', aspect='auto',
                        cmap='hot', interpolation='bilinear')
-        plt.colorbar(im, ax=ax3, label='Dichte')
+        plt.colorbar(im, ax=ax3, label='Density')
         ax3.axvline(params.zmin, color='cyan', linestyle='--', alpha=0.5)
         ax3.axvline(params.zmax, color='cyan', linestyle='--', alpha=0.5)
-    ax3.set_xlabel('Tiefe z (Å)')
+    ax3.set_xlabel('Depth z (Å)')
     ax3.set_ylabel('Position x (Å)')
-    ax3.set_title('2D Dichte-Heatmap (x-z)')
+    ax3.set_title('2D Density Heatmap (x-z)')
     
     # 4. Radial distribution
-    print("  - Radiale Verteilung...")
+    print("  - Radial distribution...")
     ax4 = fig.add_subplot(2, 3, 4)
     if hasattr(results, 'stopped_positions') and results.stopped_positions:
         positions = np.array(results.stopped_positions)
@@ -244,13 +244,13 @@ def demo_visualizations(results, params):
         z = positions[:, 2]
         r = np.sqrt(x**2 + y**2)
         ax4.scatter(z, r, alpha=0.3, s=5)
-        ax4.set_xlabel('Tiefe z (Å)')
-        ax4.set_ylabel('Radiale Distanz r (Å)')
-        ax4.set_title('Radiale Streuung')
+        ax4.set_xlabel('Depth z (Å)')
+        ax4.set_ylabel('Radial Distance r (Å)')
+        ax4.set_title('Radial Spread')
         ax4.grid(True, alpha=0.3)
     
     # 5. x-y cross section
-    print("  - Strahlquerschnitt (x-y)...")
+    print("  - Beam cross section (x-y)...")
     ax5 = fig.add_subplot(2, 3, 5)
     if hasattr(results, 'stopped_positions') and results.stopped_positions:
         positions = np.array(results.stopped_positions)

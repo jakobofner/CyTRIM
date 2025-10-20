@@ -2,11 +2,11 @@
 
 ## Übersicht
 
-CyTRIM nutzt Cython um rechenintensive Python-Module in optimierten C-Code zu übersetzen. Dies führt zu einer **6.4x Geschwindigkeitssteigerung** ohne Änderung der Benutzeroberfläche oder API.
+CyTRIM nutzt Cython um rechenintensive Python-Module in optimierten C-Code zu übersetzen. Dies führt zu einer **6.4x Velocityssteigerung** ohne Änderung der Benutzeroberfläche oder API.
 
 ## Performance-Verbesserungen
 
-### Benchmark-Ergebnisse (500 Ionen, B in Si, 50 keV)
+### Benchmark-Resultse (500 Ionen, B in Si, 50 keV)
 
 | Metrik | Pure Python | Cython | Verbesserung |
 |--------|-------------|--------|--------------|
@@ -33,7 +33,7 @@ CyTRIM nutzt Cython um rechenintensive Python-Module in optimierten C-Code zu ü
 
 **Speedup:** ~5-6x
 
-### 2. `cytrim/scatter.pyx` - ZBL-Streuung  
+### 2. `cytrim/scatter.pyx` - ZBL-Scattering  
 **Optimierungen:**
 - `cdef inline ... nogil` für interne Funktionen
 - Statische Typisierung aller Variablen
@@ -264,4 +264,4 @@ stats 20
 - ✅ Keine Änderungen am GUI-Code nötig
 - ✅ Transparente Integration
 
-**Empfehlung:** Immer Cython verwenden wenn C-Compiler verfügbar!
+**Empfehlung:** Immer Cython verwenden wenn C-Compiler available!

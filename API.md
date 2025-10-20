@@ -5,10 +5,10 @@
 Falls Sie die Simulation in eigenen Python-Skripten verwenden möchten:
 
 ```python
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
-# Parameter erstellen und anpassen
-params = SimulationParameters()
+# Parameters erstellen und anpassen
+params = SimulationParameterss()
 params.nion = 1000
 params.z1 = 5          # Bor
 params.m1 = 11.009
@@ -23,9 +23,9 @@ params.zmax = 4000.0
 sim = TRIMSimulation(params)
 results = sim.run(record_trajectories=True, max_trajectories=10)
 
-# Ergebnisse auswerten
+# Resultse auswerten
 print(f"Gestoppte Ionen: {results.count_inside} / {results.total_ions}")
-print(f"Mittlere Tiefe: {results.mean_z:.2f} Å")
+print(f"Mittlere Depth: {results.mean_z:.2f} Å")
 print(f"Standardabweichung: {results.std_z:.2f} Å")
 print(f"Laufzeit: {results.simulation_time:.2f} s")
 
@@ -36,7 +36,7 @@ trajectories = results.trajectories  # Liste von Trajektorien (Liste von Positio
 
 ## Klassen
 
-### SimulationParameters
+### SimulationParameterss
 
 Enthält alle Simulationsparameter:
 
@@ -52,7 +52,7 @@ Enthält alle Simulationsparameter:
 - `m1` (float): Masse (amu)
 - `e_init` (float): Anfangsenergie (eV)
 - `x_init`, `y_init`, `z_init` (float): Startposition (Å)
-- `dir_x`, `dir_y`, `dir_z` (float): Richtungsvektor (wird normiert)
+- `dir_x`, `dir_y`, `dir_z` (float): Directionsvektor (wird normiert)
 
 **Target:**
 - `z2` (int): Ordnungszahl
@@ -64,7 +64,7 @@ Enthält alle Simulationsparameter:
 
 **Methoden:**
 - `get_pos_init()`: Gibt Startposition als numpy-Array zurück
-- `get_dir_init()`: Gibt Richtung als numpy-Array zurück
+- `get_dir_init()`: Gibt Direction als numpy-Array zurück
 
 ### TRIMSimulation
 
@@ -74,7 +74,7 @@ Hauptklasse für die Simulation.
 ```python
 sim = TRIMSimulation(params=None)
 ```
-- `params`: SimulationParameters-Objekt (optional, sonst Standard)
+- `params`: SimulationParameterss-Objekt (optional, sonst Standard)
 
 **Methoden:**
 
@@ -86,7 +86,7 @@ sim = TRIMSimulation(params=None)
 
 `set_progress_callback(callback)`
 - Setzt Callback-Funktion für Fortschritt
-- Callback erhält `(current, total)` als Parameter
+- Callback erhält `(current, total)` als Parameters
 
 `stop()`
 - Stoppt laufende Simulation
@@ -109,14 +109,14 @@ Enthält Simulationsergebnisse:
 `get_summary()`
 - Gibt Zusammenfassung als String zurück
 
-## Beispiele
+## Examples
 
 ### Einfache Simulation
 
 ```python
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
-# Standard-Parameter verwenden
+# Standard-Parameters verwenden
 sim = TRIMSimulation()
 results = sim.run()
 print(results.get_summary())
@@ -125,13 +125,13 @@ print(results.get_summary())
 ### Mit Fortschrittsanzeige
 
 ```python
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
 def progress(current, total):
     percent = 100 * current / total
     print(f"\rFortschritt: {percent:.1f}%", end="")
 
-params = SimulationParameters()
+params = SimulationParameterss()
 params.nion = 1000
 
 sim = TRIMSimulation(params)
@@ -145,9 +145,9 @@ print("\n" + results.get_summary())
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
-params = SimulationParameters()
+params = SimulationParameterss()
 params.nion = 100
 sim = TRIMSimulation(params)
 results = sim.run(record_trajectories=True, max_trajectories=10)
@@ -171,9 +171,9 @@ plt.show()
 
 ```python
 import matplotlib.pyplot as plt
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
-params = SimulationParameters()
+params = SimulationParameterss()
 params.nion = 1000
 sim = TRIMSimulation(params)
 results = sim.run()
@@ -189,19 +189,19 @@ plt.legend()
 plt.show()
 ```
 
-### Energiescan
+### Energyscan
 
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
-from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.simulation import TRIMSimulation, SimulationParameterss
 
 energies = [10000, 20000, 30000, 50000, 75000, 100000]
 mean_depths = []
 std_depths = []
 
 for energy in energies:
-    params = SimulationParameters()
+    params = SimulationParameterss()
     params.nion = 1000
     params.e_init = energy
     
@@ -215,18 +215,18 @@ for energy in energies:
 # Plot
 plt.errorbar(np.array(energies)/1000, mean_depths, yerr=std_depths, 
              marker='o', capsize=5)
-plt.xlabel('Energie (keV)')
+plt.xlabel('Energy (keV)')
 plt.ylabel('Mittlere Eindringtiefe (Å)')
-plt.title('Eindringtiefe vs. Energie (B in Si)')
+plt.title('Eindringtiefe vs. Energy (B in Si)')
 plt.grid(True, alpha=0.3)
 plt.show()
 ```
 
 ## Erweiterte Konfiguration
 
-### Energieschwelle ändern
+### Energyschwelle ändern
 
-Die minimale Energie, bei der Ionen als gestoppt gelten:
+Die minimale Energy, bei der Ionen als gestoppt gelten:
 
 ```python
 import pytrim.trajectory as traj
@@ -262,7 +262,7 @@ Ordnungszahlen und Massen häufiger Elemente:
 
 - Simulationszeit skaliert linear mit `nion`
 - Trajektorien-Aufzeichnung verlangsamt Simulation (~10-20%)
-- Höhere Energien = längere Trajektorien = längere Laufzeit
+- Höhere Energyn = längere Trajektorien = längere Laufzeit
 - Niedrigere Dichte = größere freie Weglänge = längere Laufzeit
 
 Typische Laufzeiten (Intel i5, Python):

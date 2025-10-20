@@ -25,13 +25,11 @@ class HeatmapCanvas(FigureCanvas):
         """Clear all axes."""
         self.fig.clear()
     
-    def plot_density_heatmap_xz(self, stopped_positions, zmin, zmax,
-                                bins=50, smooth_sigma=1.0):
-        """Plot 2D density heatmap in x-z plane.
+    def plot_heatmap(self, stopped_positions, bins=50, smooth_sigma=1.0):
+        """Plot 2D density heatmap of ion stopped positions (x-z projection).
         
-        Parameters:
+        Args:
             stopped_positions: List of (x, y, z) positions
-            zmin, zmax: Target boundaries
             bins: Number of bins for histogram
             smooth_sigma: Gaussian smoothing sigma
         """
@@ -39,7 +37,7 @@ class HeatmapCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not stopped_positions:
-            ax.text(0.5, 0.5, 'Keine Daten verfügbar',
+            ax.text(0.5, 0.5, 'No data available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -77,8 +75,76 @@ class HeatmapCanvas(FigureCanvas):
         self.fig.tight_layout()
         self.draw()
     
-    def plot_density_heatmap_yz(self, stopped_positions, zmin, zmax,
-                                bins=50, smooth_sigma=1.0):
+    def plot_lateral_distribution(self, stopped_positions, zmin, zmax, bins=50, smooth_sigma=1.0):
+        """Plot lateral (y) distribution of stopped ions.
+        
+        Args:
+            stopped_positions: List of (x, y, z) positions
+            zmin, zmax: Target boundaries
+            bins: Number of bins for histogram
+            smooth_sigma: Gaussian smoothing sigma
+        """
+        self.clear()
+        ax = self.fig.add_subplot(111)
+        
+        if not stopped_positions:
+            ax.text(0.5, 0.5, 'No data available',
+                   ha='center', va='center', transform=ax.transAxes)
+            self.draw()
+            return
+    
+    def plot_density_heatmap_xz(self, stopped_positions, zmin, zmax, bins=50, smooth_sigma=1.0):
+        """Plot 2D density heatmap in x-z plane.
+        
+        Parameters:
+            stopped_positions: List of (x, y, z) positions
+            zmin, zmax: Target boundaries
+            bins: Number of bins for histogram
+            smooth_sigma: Gaussian smoothing sigma
+        """
+        self.clear()
+        ax = self.fig.add_subplot(111)
+        
+        if not stopped_positions:
+            ax.text(0.5, 0.5, 'No data available',
+                   ha='center', va='center', transform=ax.transAxes)
+            self.draw()
+            return
+        
+        positions = np.array(stopped_positions)
+        x = positions[:, 0]
+        z = positions[:, 2]
+        
+        # Create 2D histogram
+        h, xedges, zedges = np.histogram2d(x, z, bins=bins)
+        
+        # Apply Gaussian smoothing
+        if smooth_sigma > 0:
+            h = gaussian_filter(h, sigma=smooth_sigma)
+        
+        # Plot heatmap
+        extent = [zedges[0], zedges[-1], xedges[0], xedges[-1]]
+        im = ax.imshow(h, extent=extent, origin='lower', aspect='auto',
+                      cmap='hot', interpolation='bilinear')
+        
+        # Colorbar
+        cbar = self.fig.colorbar(im, ax=ax)
+        cbar.set_label('Ion Density', rotation=270, labelpad=20)
+        
+        # Target boundaries
+        ax.axvline(zmin, color='cyan', linestyle='--', alpha=0.5, label='Target')
+        ax.axvline(zmax, color='cyan', linestyle='--', alpha=0.5)
+        
+        ax.set_xlabel('Depth z (Å)')
+        ax.set_ylabel('Lateral Position x (Å)')
+        ax.set_title('2D Density Heatmap (x-z Projection)')
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+        
+        self.fig.tight_layout()
+        self.draw()
+    
+    def plot_density_heatmap_yz(self, stopped_positions, zmin, zmax, bins=50, smooth_sigma=1.0):
         """Plot 2D density heatmap in y-z plane.
         
         Parameters:
@@ -91,7 +157,7 @@ class HeatmapCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not stopped_positions:
-            ax.text(0.5, 0.5, 'Keine Daten verfügbar',
+            ax.text(0.5, 0.5, 'No data available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -114,15 +180,15 @@ class HeatmapCanvas(FigureCanvas):
         
         # Colorbar
         cbar = self.fig.colorbar(im, ax=ax)
-        cbar.set_label('Ion-Dichte', rotation=270, labelpad=20)
+        cbar.set_label('Ion Density', rotation=270, labelpad=20)
         
         # Target boundaries
         ax.axvline(zmin, color='cyan', linestyle='--', alpha=0.5, label='Target')
         ax.axvline(zmax, color='cyan', linestyle='--', alpha=0.5)
         
-        ax.set_xlabel('Tiefe z (Å)')
-        ax.set_ylabel('Laterale Position y (Å)')
-        ax.set_title('2D Dichte-Heatmap (y-z Projektion)')
+        ax.set_xlabel('Depth z (Å)')
+        ax.set_ylabel('Lateral Position y (Å)')
+        ax.set_title('2D Density Heatmap (y-z Projection)')
         ax.legend()
         ax.grid(True, alpha=0.3)
         
@@ -141,7 +207,7 @@ class HeatmapCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not stopped_positions:
-            ax.text(0.5, 0.5, 'Keine Daten verfügbar',
+            ax.text(0.5, 0.5, 'No data available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -155,7 +221,7 @@ class HeatmapCanvas(FigureCanvas):
             positions = positions[mask]
             
             if len(positions) == 0:
-                ax.text(0.5, 0.5, f'Keine Ionen in Tiefe {z_min:.0f}-{z_max:.0f} Å',
+                ax.text(0.5, 0.5, f'No ions at depth {z_min:.0f}-{z_max:.0f} Å',
                        ha='center', va='center', transform=ax.transAxes)
                 self.draw()
                 return
@@ -174,15 +240,15 @@ class HeatmapCanvas(FigureCanvas):
         
         # Colorbar
         cbar = self.fig.colorbar(im, ax=ax)
-        cbar.set_label('Ion-Dichte', rotation=270, labelpad=20)
+        cbar.set_label('Ion Density', rotation=270, labelpad=20)
         
         ax.set_xlabel('y (Å)')
         ax.set_ylabel('x (Å)')
         
         if depth_range:
-            ax.set_title(f'Strahl-Querschnitt bei z={depth_range[0]:.0f}-{depth_range[1]:.0f} Å')
+            ax.set_title(f'Beam Cross Section at z={depth_range[0]:.0f}-{depth_range[1]:.0f} Å')
         else:
-            ax.set_title('Strahl-Querschnitt (x-y Projektion)')
+            ax.set_title('Beam Cross Section (x-y Projection)')
         
         ax.grid(True, alpha=0.3)
         
@@ -221,7 +287,7 @@ class EnergyLossCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not trajectories:
-            ax.text(0.5, 0.5, 'Keine Trajektorien verfügbar',
+            ax.text(0.5, 0.5, 'No trajectories available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -235,12 +301,12 @@ class EnergyLossCanvas(FigureCanvas):
             ax.plot(z, e / 1000, alpha=0.6, linewidth=1)
         
         # Target boundaries
-        ax.axvline(zmin, color='red', linestyle='--', alpha=0.5, label='Target Grenzen')
+        ax.axvline(zmin, color='red', linestyle='--', alpha=0.5, label='Target Boundaries')
         ax.axvline(zmax, color='red', linestyle='--', alpha=0.5)
         
-        ax.set_xlabel('Tiefe z (Å)')
-        ax.set_ylabel('Energie (keV)')
-        ax.set_title('Energie-Verlust vs. Tiefe')
+        ax.set_xlabel('Depth z (Å)')
+        ax.set_ylabel('Energy (keV)')
+        ax.set_title('Energy Loss vs. Depth')
         ax.legend()
         ax.grid(True, alpha=0.3)
         
@@ -258,7 +324,7 @@ class EnergyLossCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not trajectories:
-            ax.text(0.5, 0.5, 'Keine Trajektorien verfügbar',
+            ax.text(0.5, 0.5, 'No trajectories available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -289,7 +355,7 @@ class EnergyLossCanvas(FigureCanvas):
                 all_dedz.extend(dedz)
         
         if not all_z:
-            ax.text(0.5, 0.5, 'Keine Stopping Power Daten',
+            ax.text(0.5, 0.5, 'No Stopping Power Data',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -324,13 +390,13 @@ class EnergyLossCanvas(FigureCanvas):
         dedz_std = np.array(dedz_std)
         
         # Plot
-        ax.plot(z_avg, dedz_avg, 'b-', linewidth=2, label='Mittelwert')
+        ax.plot(z_avg, dedz_avg, 'b-', linewidth=2, label='Average')
         ax.fill_between(z_avg, dedz_avg - dedz_std, dedz_avg + dedz_std,
                         alpha=0.3, label='±1σ')
         
-        ax.set_xlabel('Tiefe z (Å)')
+        ax.set_xlabel('Depth z (Å)')
         ax.set_ylabel('Stopping Power dE/dz (eV/Å)')
-        ax.set_title('Stopping Power Profil')
+        ax.set_title('Stopping Power Profile')
         ax.legend()
         ax.grid(True, alpha=0.3)
         
@@ -361,7 +427,7 @@ class RadialDistributionCanvas(FigureCanvas):
         ax = self.fig.add_subplot(111)
         
         if not stopped_positions:
-            ax.text(0.5, 0.5, 'Keine Daten verfügbar',
+            ax.text(0.5, 0.5, 'No data available',
                    ha='center', va='center', transform=ax.transAxes)
             self.draw()
             return
@@ -373,7 +439,7 @@ class RadialDistributionCanvas(FigureCanvas):
         r = np.sqrt(x**2 + y**2)
         
         # Scatter plot
-        ax.scatter(z, r, alpha=0.5, s=10, label='Ionen')
+        ax.scatter(z, r, alpha=0.5, s=10, label='Ions')
         
         # Binned average
         z_bins = np.linspace(z.min(), z.max(), bins)
@@ -395,13 +461,13 @@ class RadialDistributionCanvas(FigureCanvas):
         r_std = np.array(r_std)
         
         # Plot average with error band
-        ax.plot(z_avg, r_avg, 'r-', linewidth=2, label='Mittelwert')
+        ax.plot(z_avg, r_avg, 'r-', linewidth=2, label='Average')
         ax.fill_between(z_avg, r_avg - r_std, r_avg + r_std,
                         alpha=0.3, color='red', label='±1σ')
         
-        ax.set_xlabel('Tiefe z (Å)')
-        ax.set_ylabel('Radiale Distanz r (Å)')
-        ax.set_title('Radiale Streuung vs. Tiefe')
+        ax.set_xlabel('Depth z (Å)')
+        ax.set_ylabel('Radial Distance r (Å)')
+        ax.set_title('Radial Spread vs. Depth')
         ax.legend()
         ax.grid(True, alpha=0.3)
         

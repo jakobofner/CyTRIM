@@ -37,9 +37,9 @@ def update_performance_label(self)
 def toggle_cython(self, state)
 ```
 - QCheckBox "Cython verwenden" mit Tooltip
-- Bestätigungsdialog bei bestehenden Ergebnissen
+- Bestätigungsdialog bei bestehenden Resultsen
 - Automatische UI-Updates nach Wechsel
-- Fehlerbehandlung bei nicht verfügbarem Cython
+- Fehlerbehandlung bei nicht availableem Cython
 
 **UI-Steuerung:**
 - Toggle wird während Simulationen automatisch deaktiviert
@@ -69,11 +69,11 @@ from pytrim import (
 - Bedienungsanleitung aktualisiert
 - Programmatische API-Beispiele hinzugefügt
 
-## Test-Ergebnisse
+## Test-Resultse
 
 ### Automatischer Test (`test_toggle.py`)
 ```
-✓ Cython verfügbar
+✓ Cython available
 ✓ Initialer Status: Cython
 ✓ Wechsel zu Python erfolgreich
 ✓ Wechsel zu Cython erfolgreich
@@ -140,7 +140,7 @@ if is_cython_available():
     set_use_cython(True)
 
 # Große Simulation ausführen
-sim = TRIMSimulation(SimulationParameters(n_ions=10000))
+sim = TRIMSimulation(SimulationParameterss(n_ions=10000))
 results = sim.run()
 ```
 
@@ -163,7 +163,7 @@ print(f"Speedup: {time_py / time_cy:.1f}x")
 
 ## Fehlerbehandlung
 
-**Cython nicht verfügbar:**
+**Cython nicht available:**
 - Automatische Warnung in Konsole
 - QCheckBox wird grau ausgegraut
 - Tooltip zeigt "Cython nicht kompiliert"
@@ -176,10 +176,10 @@ print(f"Speedup: {time_py / time_cy:.1f}x")
 
 **UI-Konflikte:**
 - Toggle während Simulation deaktiviert
-- Bestätigungsdialog bei bestehendem Ergebnis
+- Bestätigungsdialog bei bestehendem Result
 - Checkbox-State wird bei Fehler zurückgesetzt
 
-## Zukünftige Erweiterungen
+## Future Extensions
 
 **Mögliche Verbesserungen:**
 - [ ] Persistente Speicherung der Toggle-Einstellung (in Config-Datei)
@@ -188,7 +188,7 @@ print(f"Speedup: {time_py / time_cy:.1f}x")
 - [ ] Performance-Vergleichs-Tool im GUI
 - [ ] Hot-Reload von Cython nach Neukompilation
 
-## Kompatibilität
+## Compatibility
 
 **Getestet auf:**
 - ✓ Linux (Ubuntu 22.04)

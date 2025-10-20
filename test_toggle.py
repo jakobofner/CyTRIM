@@ -10,52 +10,52 @@ def test_toggle():
     
     # Check if Cython is available
     cython_avail = is_cython_available()
-    print(f"1. Cython verfügbar: {'✓ Ja' if cython_avail else '✗ Nein'}")
+    print(f"1. Cython available: {'✓ Yes' if cython_avail else '✗ No'}")
     
     if not cython_avail:
-        print("\n⚠️  Cython-Module nicht verfügbar!")
-        print("   Führe './build_cython.sh' aus um sie zu kompilieren.\n")
+        print("\n⚠️  Cython modules not available!")
+        print("   Run './build_cython.sh' to compile them.\n")
         return False
     
     # Check initial state
     initial_state = is_using_cython()
-    print(f"2. Initialer Status: {'Cython' if initial_state else 'Python'}")
+    print(f"2. Initial status: {'Cython' if initial_state else 'Python'}")
     
     # Test switching to Python
-    print("\n3. Wechsel zu Python...")
+    print("\n3. Switch to Python...")
     success = set_use_cython(False)
     current_state = is_using_cython()
-    print(f"   Erfolg: {'✓' if success and not current_state else '✗'}")
-    print(f"   Aktueller Status: {'Cython' if current_state else 'Python'}")
+    print(f"   Success: {'✓' if success and not current_state else '✗'}")
+    print(f"   Current status: {'Cython' if current_state else 'Python'}")
     
     if current_state:
-        print("   ✗ Fehler: Sollte Python verwenden!")
+        print("   ✗ Error: Should be using Python!")
         return False
     
     # Test switching to Cython
-    print("\n4. Wechsel zu Cython...")
+    print("\n4. Switch to Cython...")
     success = set_use_cython(True)
     current_state = is_using_cython()
-    print(f"   Erfolg: {'✓' if success and current_state else '✗'}")
-    print(f"   Aktueller Status: {'Cython' if current_state else 'Python'}")
+    print(f"   Success: {'✓' if success and current_state else '✗'}")
+    print(f"   Current status: {'Cython' if current_state else 'Python'}")
     
     if not current_state:
-        print("   ✗ Fehler: Sollte Cython verwenden!")
+        print("   ✗ Error: Should be using Cython!")
         return False
     
     # Import test
-    print("\n5. Test Module-Import...")
+    print("\n5. Test Module Import...")
     try:
         from pytrim.simulation import TRIMSimulation, SimulationParameters
-        print("   ✓ Import erfolgreich")
+        print("   ✓ Import successful")
         
         # Create dummy simulation to verify modules work
         params = SimulationParameters()
         sim = TRIMSimulation(params)
-        print("   ✓ Simulation-Objekt erstellt")
+        print("   ✓ Simulation object created")
         
     except Exception as e:
-        print(f"   ✗ Fehler beim Import: {e}")
+        print(f"   ✗ Import error: {e}")
         return False
     
     # Restore initial state
@@ -67,7 +67,7 @@ def test_toggle():
     if final_state != initial_state:
         print("   ⚠️  Warnung: Konnte initialen Status nicht wiederherstellen")
     
-    print("\n=== Alle Tests erfolgreich! ✓ ===\n")
+    print("\n=== All Tests Successful! ✓ ===\n")
     return True
 
 if __name__ == "__main__":

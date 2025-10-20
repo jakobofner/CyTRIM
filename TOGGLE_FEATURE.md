@@ -18,7 +18,7 @@ Die neue Toggle-Funktion ermöglicht es Benutzern, zur Laufzeit zwischen Cython-
 ### 3. Dynamisches Modul-Neuladen
 - Module werden zur Laufzeit gewechselt
 - Warnung bei bestehendem Simulationsergebnis
-- Automatische Validierung der Cython-Verfügbarkeit
+- Automatische Validierung der Cython-Availablekeit
 
 ## Verwendung
 
@@ -34,9 +34,9 @@ Die neue Toggle-Funktion ermöglicht es Benutzern, zur Laufzeit zwischen Cython-
 ```python
 from pytrim import is_cython_available, set_use_cython, is_using_cython
 
-# Prüfe, ob Cython verfügbar ist
+# Prüfe, ob Cython available ist
 if is_cython_available():
-    print("Cython-Module sind kompiliert und verfügbar")
+    print("Cython-Module sind kompiliert und available")
 
 # Wechsle zu Cython
 success = set_use_cython(True)
@@ -50,7 +50,7 @@ else:
     print("Nutze Python-Module")
 ```
 
-## Technische Details
+## Technical Details
 
 ### Module System
 - **Dynamisches Laden**: Module werden zur Laufzeit aus `cytrim.*` oder `pytrim.*` importiert
@@ -67,12 +67,12 @@ else:
 ### GUI Integration
 - Toggle wird während Simulationen deaktiviert
 - Status-Label aktualisiert sich automatisch
-- Bestätigungsdialog bei bestehendem Ergebnis
-- Fehlermeldung bei nicht verfügbarem Cython
+- Bestätigungsdialog bei bestehendem Result
+- Fehlermeldung bei nicht availableem Cython
 
 ## Performance
 
-### Benchmark-Ergebnisse (500 Ionen)
+### Benchmark-Resultse (500 Ionen)
 - **Cython**: 2.2 Sekunden (~226 Ionen/Sekunde)
 - **Python**: 14.2 Sekunden (~35 Ionen/Sekunde)
 - **Speedup**: 6.4x
@@ -80,16 +80,16 @@ else:
 ### Wann Cython verwenden?
 ✅ **Große Simulationen** (>100 Ionen)
 ✅ **Produktionsläufe** mit vielen Wiederholungen
-✅ **Parameterstudien** mit vielen Konfigurationen
+✅ **Parametersstudien** mit vielen Konfigurationen
 
 ### Wann Python verwenden?
 ✅ **Debugging** mit detaillierten Stack Traces
 ✅ **Entwicklung** ohne Neucompilierung
 ✅ **Kleine Tests** (<50 Ionen)
 
-## Fehlerbehebung
+## Troubleshooting
 
-### Cython nicht verfügbar
+### Cython nicht available
 ```bash
 # Kompiliere Cython-Module
 ./build_cython.sh
@@ -109,7 +109,7 @@ python -c "from pytrim import is_cython_available; print(is_cython_available())"
 
 ### Toggle funktioniert nicht
 1. Prüfe, ob Simulation läuft (Toggle ist dann deaktiviert)
-2. Prüfe Cython-Verfügbarkeit mit `is_cython_available()`
+2. Check Cython availability mit `is_cython_available()`
 3. Prüfe Konsolen-Output für Fehler
 
 ## Implementierungsdetails
@@ -134,7 +134,7 @@ class MainWindow:
     def toggle_cython(self, state: Qt.CheckState) -> None
 ```
 
-## Zukünftige Erweiterungen
+## Future Extensions
 
 - [ ] Automatische Performance-Messung für Empfehlung
 - [ ] Persistente Speicherung der Toggle-Einstellung

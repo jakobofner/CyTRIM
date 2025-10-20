@@ -86,6 +86,7 @@ def trajectory_with_path(cnp.ndarray[cnp.float64_t, ndim=1] pos_init,
 
     Returns:
         tuple: (pos, dir, e, is_inside, path)
+            path is list of (x, y, z, energy) tuples if record_path=True
     """
     cdef cnp.ndarray[cnp.float64_t, ndim=1] pos = pos_init.copy()
     cdef cnp.ndarray[cnp.float64_t, ndim=1] dir = dir_init.copy()
@@ -98,7 +99,8 @@ def trajectory_with_path(cnp.ndarray[cnp.float64_t, ndim=1] pos_init,
     cdef int i
     
     if record_path:
-        path = [pos.copy()]
+        # Store position AND energy as tuple
+        path = [(pos[0], pos[1], pos[2], e)]
 
     while e > EMIN:
         free_path, p, dirp, pos_recoil = select_recoil.get_recoil_position(pos, dir)
@@ -109,7 +111,7 @@ def trajectory_with_path(cnp.ndarray[cnp.float64_t, ndim=1] pos_init,
             pos[i] += free_path * dir[i]
         
         if record_path:
-            path.append(pos.copy())
+            path.append((pos[0], pos[1], pos[2], e))
         
         if not geometry.is_inside_target(pos):
             is_inside = False

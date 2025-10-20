@@ -14,10 +14,10 @@
 │ │ Projektil Z, M  │ │  │  [Trajektorien-Plot]               │ │
 │ │ Target Z, M     │ │  │                                    │ │
 │ │ Dichte          │ │  │                                    │ │
-│ │ Energie         │ │  └────────────────────────────────────┘ │
+│ │ Energy         │ │  └────────────────────────────────────┘ │
 │ │ Position        │ │                                          │
-│ │ Richtung        │ │  Tab: Stopptiefe-Verteilung              │
-│ └─────────────────┘ │  Tab: Ergebnisse                         │
+│ │ Direction        │ │  Tab: Stopptiefe-Verteilung              │
+│ └─────────────────┘ │  Tab: Resultse                         │
 │                     │                                          │
 │ STEUERUNG           │                                          │
 │ ┌─────────────────┐ │                                          │
@@ -72,7 +72,7 @@
 └────────────────────┘
 ```
 
-## Ergebnisse-Tab (mit Performance-Info)
+## Resultse-Tab (mit Performance-Info)
 
 ```
 Number of ions stopped inside the target: 996 / 1000
