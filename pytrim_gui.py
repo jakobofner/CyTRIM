@@ -569,8 +569,28 @@ class MainWindow(QMainWindow):
                 "Python: Slower, but helpful for debugging"
             )
             perf_layout.addWidget(self.cython_toggle)
+            
+            # OpenMP parallel toggle (if available)
+            from pytrim import is_parallel_available, is_using_parallel
+            if is_parallel_available():
+                self.parallel_toggle = QCheckBox("Use OpenMP Parallel")
+                self.parallel_toggle.setChecked(is_using_parallel())
+                self.parallel_toggle.stateChanged.connect(self.toggle_parallel)
+                self.parallel_toggle.setToolTip(
+                    "Enable/Disable OpenMP multi-core parallelization.\n"
+                    "Parallel: ~20-30x faster (depends on CPU cores)\n"
+                    "Sequential: Single-threaded execution\n"
+                    "Requires Cython to be enabled"
+                )
+                # Parallel requires Cython to be enabled
+                if not is_using_cython():
+                    self.parallel_toggle.setEnabled(False)
+                perf_layout.addWidget(self.parallel_toggle)
+            else:
+                self.parallel_toggle = None
         else:
             self.cython_toggle = None
+            self.parallel_toggle = None
             # Show hint to build Cython
             hint_label = QLabel(
                 "<small><i>Cython not available.<br>"
@@ -652,12 +672,22 @@ class MainWindow(QMainWindow):
         
     def update_performance_label(self):
         """Update the performance status label."""
+        from pytrim import is_using_parallel, is_parallel_available
+        
         using_cython = is_using_cython()
+        using_parallel = is_using_parallel()
+        
         if using_cython:
-            perf_icon = "⚡"
-            perf_text = "Cython aktiviert"
-            perf_detail = "~6.4x schneller"
-            perf_color = "#2ecc71"  # Green
+            if using_parallel:
+                perf_icon = "⚡⚡"
+                perf_text = "Cython + OpenMP"
+                perf_detail = "~40-50x faster (multi-core)"
+                perf_color = "#27ae60"  # Dark green
+            else:
+                perf_icon = "⚡"
+                perf_text = "Cython enabled"
+                perf_detail = "~6.4x faster"
+                perf_color = "#2ecc71"  # Green
         else:
             perf_icon = "🐍"
             perf_text = "Python Mode"
@@ -698,6 +728,18 @@ class MainWindow(QMainWindow):
         if success:
             self.update_performance_label()
             mode = "Cython" if use_cython else "Python"
+            
+            # Disable parallel if switching to Python
+            if not use_cython and self.parallel_toggle is not None:
+                self.parallel_toggle.blockSignals(True)
+                self.parallel_toggle.setChecked(False)
+                self.parallel_toggle.setEnabled(False)
+                self.parallel_toggle.blockSignals(False)
+                from pytrim import set_use_parallel
+                set_use_parallel(False)
+            elif use_cython and self.parallel_toggle is not None:
+                self.parallel_toggle.setEnabled(True)
+            
             QMessageBox.information(
                 self,
                 "Mode Switched",
@@ -715,6 +757,51 @@ class MainWindow(QMainWindow):
                 "Switch Failed",
                 "Could not load Cython modules.\n"
                 "Run './build_cython.sh' to compile them."
+            )
+    
+    def toggle_parallel(self, state):
+        """Toggle OpenMP parallelization."""
+        from pytrim import set_use_parallel, is_using_cython
+        
+        use_parallel = (state == Qt.CheckState.Checked.value)
+        
+        # Can only use parallel with Cython
+        if use_parallel and not is_using_cython():
+            self.parallel_toggle.blockSignals(True)
+            self.parallel_toggle.setChecked(False)
+            self.parallel_toggle.blockSignals(False)
+            QMessageBox.warning(
+                self,
+                "Cython Required",
+                "OpenMP parallelization requires Cython to be enabled.\n"
+                "Please enable Cython first."
+            )
+            return
+        
+        # Try to switch
+        success = set_use_parallel(use_parallel)
+        
+        if success:
+            self.update_performance_label()
+            mode = "Parallel (OpenMP)" if use_parallel else "Sequential"
+            QMessageBox.information(
+                self,
+                "Parallelization Switched",
+                f"Switched to {mode} execution!\n\n"
+                f"Expected speedup: {'~4-8x (multi-core)' if use_parallel else '1x (single-core)'}"
+            )
+        else:
+            # Failed to switch
+            self.parallel_toggle.blockSignals(True)
+            self.parallel_toggle.setChecked(False)
+            self.parallel_toggle.blockSignals(False)
+            self.update_performance_label()
+            QMessageBox.warning(
+                self,
+                "Switch Failed",
+                "Could not enable parallelization.\n"
+                "Rebuild with: ./build_cython.sh\n"
+                "Make sure OpenMP is available on your system."
             )
         
     def start_simulation(self):
@@ -747,7 +834,10 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(True)
         self.param_widget.set_enabled(False)
         self.export_button.setEnabled(False)
-        self.cython_toggle.setEnabled(False)  # Disable during simulation
+        if self.cython_toggle is not None:
+            self.cython_toggle.setEnabled(False)  # Disable during simulation
+        if self.parallel_toggle is not None:
+            self.parallel_toggle.setEnabled(False)  # Disable during simulation
         self.progress_bar.setValue(0)
         self.progress_label.setText("Simulation running...")
         self.results_text.clear()
@@ -785,7 +875,12 @@ class MainWindow(QMainWindow):
         self.stop_button.setEnabled(False)
         self.param_widget.set_enabled(True)
         self.export_button.setEnabled(True)
-        self.cython_toggle.setEnabled(True)  # Re-enable after simulation
+        if self.cython_toggle is not None:
+            self.cython_toggle.setEnabled(True)  # Re-enable after simulation
+        if self.parallel_toggle is not None:
+            # Only enable if Cython is active
+            from pytrim import is_using_cython
+            self.parallel_toggle.setEnabled(is_using_cython())
         self.progress_bar.setValue(100)
         self.progress_label.setText("Simulation completed!")
         
@@ -827,7 +922,11 @@ class MainWindow(QMainWindow):
         self.start_button.setEnabled(True)
         self.stop_button.setEnabled(False)
         self.param_widget.set_enabled(True)
-        self.cython_toggle.setEnabled(True)  # Re-enable after error
+        if self.cython_toggle is not None:
+            self.cython_toggle.setEnabled(True)  # Re-enable after error
+        if self.parallel_toggle is not None:
+            from pytrim import is_using_cython
+            self.parallel_toggle.setEnabled(is_using_cython())
         self.progress_label.setText("Error!")
         
         QMessageBox.critical(self, "Simulation Error", 

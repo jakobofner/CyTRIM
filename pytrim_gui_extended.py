@@ -29,7 +29,8 @@ from pytrim_gui import (
 )
 from pytrim.simulation import (
     TRIMSimulation, SimulationParameters,
-    is_using_cython, is_cython_available, set_use_cython
+    is_using_cython, is_cython_available, set_use_cython,
+    is_using_parallel, is_parallel_available, set_use_parallel
 )
 from pytrim import geometry3d
 from pytrim.presets import get_preset_manager, MaterialPreset
@@ -147,34 +148,48 @@ class GeometryParameterWidget(QGroupBox):
             self.layout.addWidget(self.param_widgets['layer_thicknesses'], row, 1)
     
     def get_geometry_params(self):
-        """Get current geometry parameters as dictionary."""
+        """Get current geometry parameters as dictionary.
+        
+        Note: zmin and zmax are handled separately by the main form,
+        so they are added to the params where needed for the constructors.
+        """
         if self.current_geometry == "planar":
             return {}
         elif self.current_geometry == "box":
+            # BoxGeometry needs: x_min, x_max, y_min, y_max, z_min, z_max
+            # Note: z_min and z_max will be added from params.zmin/zmax in simulation.py
             return {
                 'x_min': self.param_widgets['x_min'].value(),
                 'x_max': self.param_widgets['x_max'].value(),
                 'y_min': self.param_widgets['y_min'].value(),
                 'y_max': self.param_widgets['y_max'].value(),
+                'needs_z_bounds': True  # Signal that z_min/z_max are needed
             }
         elif self.current_geometry == "cylinder":
+            # CylinderGeometry needs: radius, z_min, z_max, center_x=0.0, center_y=0.0
+            # Axis selection is ignored for now (always z-axis)
             return {
                 'radius': self.param_widgets['radius'].value(),
-                'axis': self.param_widgets['axis'].currentText(),
+                'needs_z_bounds': True  # Signal that z_min/z_max are needed
             }
         elif self.current_geometry == "sphere":
+            # SphereGeometry needs: radius, center_x=0.0, center_y=0.0, center_z=0.0
             return {
                 'radius': self.param_widgets['radius'].value(),
-                'center': (
-                    self.param_widgets['center_x'].value(),
-                    self.param_widgets['center_y'].value(),
-                    self.param_widgets['center_z'].value(),
-                )
+                'center_x': self.param_widgets['center_x'].value(),
+                'center_y': self.param_widgets['center_y'].value(),
+                'center_z': self.param_widgets['center_z'].value(),
             }
         elif self.current_geometry == "multilayer":
+            # MultiLayerGeometry needs: layer_z_positions (list of z boundaries)
+            # Convert thicknesses to z positions
             thick_str = self.param_widgets['layer_thicknesses'].text()
             thicknesses = [float(x.strip()) for x in thick_str.split(',')]
-            return {'layer_thicknesses': thicknesses}
+            # Calculate z positions from thicknesses
+            z_positions = [0.0]
+            for thickness in thicknesses:
+                z_positions.append(z_positions[-1] + thickness)
+            return {'layer_z_positions': z_positions}
         return {}
 
 
@@ -659,6 +674,18 @@ class ExtendedMainWindow(QMainWindow):
         else:
             self.cython_toggle = None
         
+        if is_parallel_available():
+            self.parallel_toggle = QCheckBox("⚡⚡ Use OpenMP Parallel")
+            self.parallel_toggle.setChecked(is_using_parallel())
+            self.parallel_toggle.stateChanged.connect(self.toggle_parallel)
+            # Parallel requires Cython to be enabled
+            if not is_using_cython():
+                self.parallel_toggle.setEnabled(False)
+                self.parallel_toggle.setToolTip("Requires Cython to be enabled first")
+            perf_layout.addWidget(self.parallel_toggle)
+        else:
+            self.parallel_toggle = None
+        
         self.update_performance_label()
         perf_group.setLayout(perf_layout)
         left_layout.addWidget(perf_group)
@@ -727,27 +754,134 @@ class ExtendedMainWindow(QMainWindow):
         self.tab_widget.addTab(widget, title)
     
     def update_performance_label(self):
-        """Update performance status."""
-        if is_using_cython():
-            text = "⚡ <b>Cython aktiviert</b><br><small>~6.4x schneller</small>"
-            color = "#2ecc71"
+        """Update the performance status label."""
+        using_cython = is_using_cython()
+        using_parallel = is_using_parallel()
+        
+        if using_cython:
+            if using_parallel:
+                perf_icon = "⚡⚡"
+                perf_text = "Cython + OpenMP"
+                perf_detail = "~20-30x faster (multi-core)"
+                perf_color = "#27ae60"  # Dark green
+            else:
+                perf_icon = "⚡"
+                perf_text = "Cython enabled"
+                perf_detail = "~6.4x faster"
+                perf_color = "#2ecc71"  # Green
         else:
-            text = "🐍 <b>Python Modus</b><br><small>Cython deaktiviert</small>"
-            color = "#f39c12"
-        self.perf_label.setText(text)
-        self.perf_label.setStyleSheet(f"color: {color};")
+            perf_icon = "🐍"
+            perf_text = "Python Mode"
+            if is_cython_available():
+                perf_detail = "Cython available, but disabled"
+            else:
+                perf_detail = "For more speed: ./build_cython.sh"
+            perf_color = "#f39c12"  # Orange
+        
+        self.perf_label.setText(
+            f"{perf_icon} <b>{perf_text}</b><br><small>{perf_detail}</small>"
+        )
+        self.perf_label.setStyleSheet(f"color: {perf_color}; padding: 5px;")
     
     def toggle_cython(self, state):
-        """Toggle Cython mode."""
+        """Toggle between Cython and Python modes."""
         use_cython = (state == Qt.CheckState.Checked.value)
+        
+        # Show warning about reload
+        if hasattr(self, 'results') and self.results is not None:
+            reply = QMessageBox.question(
+                self,
+                "Reload modules?",
+                "Switching between Cython and Python requires reloading "
+                "the simulation modules. Do you want to continue?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if reply == QMessageBox.StandardButton.No:
+                # Revert checkbox
+                self.cython_toggle.blockSignals(True)
+                self.cython_toggle.setChecked(not use_cython)
+                self.cython_toggle.blockSignals(False)
+                return
+        
+        # Try to switch
         success = set_use_cython(use_cython)
+        
         if success:
             self.update_performance_label()
+            mode = "Cython" if use_cython else "Python"
+            
+            # Disable parallel if switching to Python
+            if not use_cython and self.parallel_toggle is not None:
+                self.parallel_toggle.blockSignals(True)
+                self.parallel_toggle.setChecked(False)
+                self.parallel_toggle.setEnabled(False)
+                self.parallel_toggle.blockSignals(False)
+                set_use_parallel(False)
+            elif use_cython and self.parallel_toggle is not None:
+                self.parallel_toggle.setEnabled(True)
+            
+            QMessageBox.information(
+                self,
+                "Mode Switched",
+                f"Successfully switched to {mode} mode!\n\n"
+                f"New simulations will use {mode} modules."
+            )
         else:
+            # Failed to switch (probably Cython not available)
             self.cython_toggle.blockSignals(True)
             self.cython_toggle.setChecked(False)
             self.cython_toggle.blockSignals(False)
-            QMessageBox.warning(self, "Error", "Could not enable Cython")
+            self.update_performance_label()
+            QMessageBox.warning(
+                self,
+                "Switch Failed",
+                "Could not load Cython modules.\n"
+                "Run './build_cython.sh' to compile them."
+            )
+    
+    def toggle_parallel(self, state):
+        """Toggle OpenMP parallelization."""
+        use_parallel = (state == Qt.CheckState.Checked.value)
+        
+        # Can only use parallel with Cython
+        if use_parallel and not is_using_cython():
+            self.parallel_toggle.blockSignals(True)
+            self.parallel_toggle.setChecked(False)
+            self.parallel_toggle.blockSignals(False)
+            QMessageBox.warning(
+                self,
+                "Cython Required",
+                "OpenMP parallelization requires Cython to be enabled.\n"
+                "Please enable Cython first."
+            )
+            return
+        
+        # Try to switch
+        success = set_use_parallel(use_parallel)
+        
+        if success:
+            self.update_performance_label()
+            mode = "Parallel (OpenMP)" if use_parallel else "Sequential"
+            QMessageBox.information(
+                self,
+                "Parallelization Switched",
+                f"Switched to {mode} execution!\n\n"
+                f"Expected speedup: {'~20-30x (multi-core)' if use_parallel else '1x (single-core)'}"
+            )
+        else:
+            # Failed to switch
+            self.parallel_toggle.blockSignals(True)
+            self.parallel_toggle.setChecked(False)
+            self.parallel_toggle.blockSignals(False)
+            self.update_performance_label()
+            QMessageBox.warning(
+                self,
+                "Switch Failed",
+                "Could not enable parallelization.\n"
+                "Rebuild with: ./build_cython.sh\n"
+                "Make sure OpenMP is available on your system."
+            )
+            QMessageBox.warning(self, "Error", "Could not enable OpenMP parallelization. Make sure to compile with: ./build_cython.sh")
     
     def start_simulation(self):
         """Start simulation."""
@@ -777,6 +911,8 @@ class ExtendedMainWindow(QMainWindow):
         self.export_button.setEnabled(False)
         if self.cython_toggle:
             self.cython_toggle.setEnabled(False)
+        if self.parallel_toggle:
+            self.parallel_toggle.setEnabled(False)
         self.progress_bar.setValue(0)
         self.progress_label.setText("Simulation running...")
         
@@ -804,6 +940,8 @@ class ExtendedMainWindow(QMainWindow):
         self.export_button.setEnabled(True)
         if self.cython_toggle:
             self.cython_toggle.setEnabled(True)
+        if self.parallel_toggle:
+            self.parallel_toggle.setEnabled(True)
         self.progress_bar.setValue(100)
         self.progress_label.setText("Completed!")
         
@@ -845,6 +983,8 @@ class ExtendedMainWindow(QMainWindow):
         self.param_widget.set_enabled(True)
         if self.cython_toggle:
             self.cython_toggle.setEnabled(True)
+        if self.parallel_toggle:
+            self.parallel_toggle.setEnabled(True)
         self.progress_label.setText("Error!")
         QMessageBox.critical(self, "Error", f"Simulation failed:\n{error_msg}")
     
@@ -871,36 +1011,71 @@ class ExtendedMainWindow(QMainWindow):
         try:
             from pathlib import Path
             base_path = Path(base_file)
+            exported_files = []
             
-            if "CSV" in format_choice or "Alle" in format_choice:
-                csv_path = base_path.with_suffix('.csv')
-                export.export_to_csv(self.results, csv_path, options['include_trajectories'])
+            is_all_formats = "All" in format_choice
             
-            if "JSON" in format_choice or "Alle" in format_choice:
-                json_path = base_path.with_suffix('.json')
-                export.export_to_json(self.results, json_path, options['include_trajectories'])
+            if "CSV" in format_choice or is_all_formats:
+                try:
+                    csv_path = base_path.with_suffix('.csv')
+                    export.export_to_csv(self.results, csv_path, options['include_trajectories'])
+                    exported_files.append(f"CSV: {csv_path.name}")
+                except Exception as e:
+                    print(f"CSV export failed: {e}")
+                    if not is_all_formats:
+                        raise
             
-            if "VTK" in format_choice or "Alle" in format_choice:
-                if hasattr(self.results, 'stopped_positions') and self.results.stopped_positions:
-                    vtk_path = base_path.with_suffix('.vtk')
-                    export.export_to_vtk(self.results, vtk_path)
+            if "JSON" in format_choice or is_all_formats:
+                try:
+                    json_path = base_path.with_suffix('.json')
+                    export.export_to_json(self.results, json_path, options['include_trajectories'])
+                    exported_files.append(f"JSON: {json_path.name}")
+                except Exception as e:
+                    print(f"JSON export failed: {e}")
+                    if not is_all_formats:
+                        raise
             
-            if "PNG" in format_choice or "Alle" in format_choice:
-                canvases = [
-                    ("traj3d", self.traj3d_canvas),
-                    ("traj2d_xz", self.traj2d_xz_canvas),
-                    ("traj2d_yz", self.traj2d_yz_canvas),
-                    ("heatmap_xz", self.heatmap_xz_canvas),
-                    ("heatmap_yz", self.heatmap_yz_canvas),
-                    ("energy", self.energy_canvas),
-                    ("histogram", self.hist_canvas),
-                ]
-                export.export_all_plots(canvases, base_path, options['dpi'])
+            if "VTK" in format_choice or is_all_formats:
+                try:
+                    if hasattr(self.results, 'stopped_positions') and self.results.stopped_positions:
+                        vtk_path = base_path.with_suffix('.vtk')
+                        export.export_to_vtk(self.results, vtk_path)
+                        exported_files.append(f"VTK: {vtk_path.name}")
+                except Exception as e:
+                    print(f"VTK export failed: {e}")
+                    if not is_all_formats:
+                        raise
             
-            QMessageBox.information(self, "Export Successful", 
-                                  f"Data successfully exported to:\n{base_path.parent}")
+            if "PNG" in format_choice or is_all_formats:
+                try:
+                    canvases = [
+                        ("traj3d", self.traj3d_canvas),
+                        ("traj2d_xz", self.traj2d_xz_canvas),
+                        ("traj2d_yz", self.traj2d_yz_canvas),
+                        ("heatmap_xz", self.heatmap_xz_canvas),
+                        ("heatmap_yz", self.heatmap_yz_canvas),
+                        ("energy", self.energy_canvas),
+                        ("histogram", self.hist_canvas),
+                    ]
+                    export.export_all_plots(canvases, base_path, options['dpi'])
+                    exported_files.append("PNG: All plots")
+                except Exception as e:
+                    print(f"PNG export failed: {e}")
+                    if not is_all_formats:
+                        raise
+            
+            if exported_files:
+                files_list = "\n".join(exported_files)
+                QMessageBox.information(self, "Export Successful", 
+                                      f"Successfully exported:\n{files_list}\n\nLocation: {base_path.parent}")
+            else:
+                QMessageBox.warning(self, "Export Warning", 
+                                  "No files were exported. Check console for errors.")
         
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Export error details:\n{error_details}")
             QMessageBox.critical(self, "Export Error", f"Error during export:\n{str(e)}")
 
 

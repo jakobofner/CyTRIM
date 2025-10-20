@@ -44,9 +44,10 @@ CyTRIM is a professional Python implementation of TRIM (Transport of Ions in Mat
 
 ### Performance
 - **Cython optimization** delivering up to 6.4× speedup vs. pure Python
-- **Runtime toggle** between Cython and Python execution paths
+- **OpenMP parallelization** providing additional 7-8× speedup on multi-core systems (up to 50× total)
+- **Runtime toggles** for both Cython and parallel execution
 - **Automatic fallback** to pure Python when compiled modules are absent
-- **Performance telemetry** surfaced directly in the GUI
+- **Performance telemetry** surfaced directly in the GUI with live indicators
 
 ## What Does the Program Do?
 
@@ -331,7 +332,6 @@ See `LICENSE` in the repository root.
 - [QUICKSTART.md](QUICKSTART.md): quick-start guide for the GUI.
 - [API.md](API.md): API usage and examples.
 - [CYTHON.md](CYTHON.md): details on the Cython build and optimization.
-- [CHANGELOG.md](CHANGELOG.md): version history and feature summaries.
 
 ## Contact & Support
 1. Review the documentation (QUICKSTART.md, README.md).

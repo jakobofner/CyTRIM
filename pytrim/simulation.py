@@ -5,10 +5,13 @@ configurable parameters.
 
 Automatically uses Cython-optimized modules if available, otherwise
 falls back to pure Python implementation.
+
+Supports optional OpenMP parallelization for multi-core speedup.
 """
 from math import sqrt
 import time
 import numpy as np
+import os
 
 # Module references that can be switched at runtime
 select_recoil = None
@@ -16,10 +19,13 @@ scatter = None
 estop = None
 geometry = None
 trajectory = None
+simulation_parallel = None
 
 _using_cython = False
 _cython_available = False
 _force_python = False
+_parallel_available = False
+_use_parallel = False
 
 # Check if Cython modules are available
 try:
@@ -32,9 +38,16 @@ try:
 except ImportError:
     _cython_available = False
 
+# Check if parallel module is available
+try:
+    import cytrim.simulation_parallel
+    _parallel_available = True
+except ImportError:
+    _parallel_available = False
+
 def _load_cython_modules():
     """Load Cython-optimized modules."""
-    global select_recoil, scatter, estop, geometry, trajectory, _using_cython
+    global select_recoil, scatter, estop, geometry, trajectory, simulation_parallel, _using_cython
     from cytrim import select_recoil as sr
     from cytrim import scatter as sc
     from cytrim import estop as es
@@ -45,11 +58,20 @@ def _load_cython_modules():
     estop = es
     geometry = geo
     trajectory = traj
+    
+    # Try to load parallel module
+    if _parallel_available:
+        try:
+            from cytrim import simulation_parallel as sp
+            simulation_parallel = sp
+        except ImportError:
+            pass
+    
     _using_cython = True
 
 def _load_python_modules():
     """Load pure Python modules."""
-    global select_recoil, scatter, estop, geometry, trajectory, _using_cython
+    global select_recoil, scatter, estop, geometry, trajectory, simulation_parallel, _using_cython
     from . import select_recoil as sr
     from . import scatter as sc
     from . import estop as es
@@ -60,6 +82,7 @@ def _load_python_modules():
     estop = es
     geometry = geo
     trajectory = traj
+    simulation_parallel = None  # No parallel support in Python mode
     _using_cython = False
 
 def set_use_cython(use_cython):
@@ -87,6 +110,65 @@ def set_use_cython(use_cython):
         _load_python_modules()
         print("✓ Switched to pure Python modules")
         return True
+
+def set_use_parallel(use_parallel):
+    """Enable or disable OpenMP parallelization.
+    
+    Parameters:
+        use_parallel (bool): True to use parallel execution (requires Cython + OpenMP)
+        
+    Returns:
+        bool: True if requested mode is now active, False if not possible
+    """
+    global _use_parallel
+    
+    if use_parallel:
+        if _parallel_available and _using_cython:
+            _use_parallel = True
+            print("✓ Enabled OpenMP parallelization")
+            return True
+        elif not _using_cython:
+            print("✗ Parallelization requires Cython - enable Cython first")
+            return False
+        else:
+            print("✗ Parallel module not available - rebuild with OpenMP support")
+            return False
+    else:
+        _use_parallel = False
+        print("✓ Disabled parallelization")
+        return True
+
+def is_cython_available():
+    """Check if Cython modules are available.
+    
+    Returns:
+        bool: True if Cython modules can be imported
+    """
+    return _cython_available
+
+def is_using_cython():
+    """Check if currently using Cython modules.
+    
+    Returns:
+        bool: True if Cython modules are active
+    """
+    return _using_cython
+
+def is_parallel_available():
+    """Check if OpenMP parallelization is available.
+    
+    Returns:
+        bool: True if parallel module can be imported
+    """
+    return _parallel_available
+
+def is_using_parallel():
+    """Check if currently using parallelization.
+    
+    Returns:
+        bool: True if parallel execution is enabled
+    """
+    return _use_parallel
 
 # Initialize with best available option
 if _cython_available and not _force_python:
@@ -170,6 +252,37 @@ class SimulationResults:
         self.std_y = 0.0
         self.mean_r = 0.0  # Radial mean (distance from z-axis)
         self.std_r = 0.0   # Radial standard deviation
+    
+    # Properties for backward compatibility with export functions
+    @property
+    def nion(self):
+        """Alias for total_ions (backward compatibility)."""
+        return self.total_ions
+    
+    @property
+    def stopped(self):
+        """Number of ions stopped inside target."""
+        return self.count_inside
+    
+    @property
+    def backscattered(self):
+        """Number of backscattered ions (not tracked yet)."""
+        return 0
+    
+    @property
+    def transmitted(self):
+        """Number of transmitted ions."""
+        return self.total_ions - self.count_inside
+    
+    @property
+    def mean_depth(self):
+        """Alias for mean_z (backward compatibility)."""
+        return self.mean_z
+    
+    @property
+    def std_depth(self):
+        """Alias for std_z (backward compatibility)."""
+        return self.std_z
         
     def get_summary(self):
         """Get a summary string of the results."""
@@ -229,8 +342,13 @@ class TRIMSimulation:
                     z_min=self.params.zmin, z_max=self.params.zmax)
             else:
                 # Use advanced geometry with custom parameters
+                # Add z_min and z_max if needed by the geometry type
+                params_dict = self.params.geometry_params.copy()
+                if params_dict.pop('needs_z_bounds', False):
+                    params_dict['z_min'] = self.params.zmin
+                    params_dict['z_max'] = self.params.zmax
                 return geometry3d.create_geometry(
-                    self.params.geometry_type, **self.params.geometry_params)
+                    self.params.geometry_type, **params_dict)
         except ImportError:
             # Fallback: use old geometry module with simple planar setup
             print("Warning: geometry3d not available, using legacy planar geometry")
@@ -286,7 +404,58 @@ class TRIMSimulation:
         pos_init = self.params.get_pos_init()
         dir_init = self.params.get_dir_init()
         
-        # Run simulation for each ion
+        # Use parallel execution if enabled and available
+        if _use_parallel and simulation_parallel is not None and self.params.geometry_type == 'planar':
+            # Parallel mode only supports planar geometry (for now)
+            # Advanced geometries need full module setup in each worker process
+            
+            # Get number of threads from environment or use default
+            num_threads = int(os.environ.get('OMP_NUM_THREADS', 0))
+            
+            # Prepare geometry information for worker processes
+            geometry_info = ('planar', {'z_min': self.params.zmin, 'z_max': self.params.zmax})
+            
+            # Run parallel simulation with progress callback and geometry info
+            stopped_positions, stopped_depths, trajectories, count_inside = \
+                simulation_parallel.run_parallel_simulation(
+                    pos_init, dir_init, self.params.e_init,
+                    self.params.nion, record_trajectories, max_trajectories,
+                    num_threads, self._progress_callback, geometry_info
+                )
+            
+            # Store results and skip sequential execution
+            self.results.count_inside = count_inside
+            self.results.stopped_positions = stopped_positions
+            self.results.stopped_depths = stopped_depths
+            if trajectories is not None:
+                self.results.trajectories = trajectories
+            
+            # Calculate statistics from collected results
+            if count_inside > 0:
+                n = count_inside
+                for x, y, z in stopped_positions:
+                    self.results.mean_x += x
+                    self.results.mean_y += y
+                    self.results.mean_z += z
+                    self.results.std_x += x**2
+                    self.results.std_y += y**2
+                    self.results.std_z += z**2
+                    r = sqrt(x**2 + y**2)
+                    self.results.mean_r += r
+                    self.results.std_r += r**2
+            
+            # Calculate simulation time before returning
+            end_time = time.time()
+            self.results.simulation_time = end_time - start_time
+            
+            return self.results  # Return early to skip sequential code
+        
+        # If parallel not used or geometry not planar, show info message
+        if _use_parallel and simulation_parallel is not None and self.params.geometry_type != 'planar':
+            print(f"ℹ️ Info: Parallel mode only supports planar geometry.")
+            print(f"  Running '{self.params.geometry_type}' geometry in sequential mode.")
+        
+        # Sequential execution (original code or fallback)
         for i in range(self.params.nion):
             if self._should_stop:
                 break

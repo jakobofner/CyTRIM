@@ -3,7 +3,10 @@
 Transport of Ions in Matter simulation package.
 """
 from .simulation import TRIMSimulation, SimulationParameters, SimulationResults
-from .simulation import is_using_cython, is_cython_available, set_use_cython
+from .simulation import (
+    is_using_cython, is_cython_available, set_use_cython,
+    is_using_parallel, is_parallel_available, set_use_parallel
+)
 
 # Import geometry3d module
 try:
@@ -11,7 +14,7 @@ try:
 except ImportError:
     geometry3d = None
 
-__version__ = '1.0.0'
+__version__ = '2.0.0'
 __all__ = [
     'TRIMSimulation', 
     'SimulationParameters', 
@@ -19,5 +22,8 @@ __all__ = [
     'is_using_cython',
     'is_cython_available',
     'set_use_cython',
+    'is_using_parallel',
+    'is_parallel_available',
+    'set_use_parallel',
     'geometry3d'
 ]

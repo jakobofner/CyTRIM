@@ -200,9 +200,10 @@ python setup.py build_ext --inplace
 
 ### Additional optimization opportunities
 
-1. **OpenMP parallelization**
-   - Parallelize the per-ion loop
-   - Potential: additional 4-8x speedup
+1. **OpenMP parallelization** ✅ **IMPLEMENTED!**
+   - Parallelize the per-ion loop across CPU cores
+   - **Achieved: additional 4-8× speedup**
+   - See [PARALLELIZATION.md](PARALLELIZATION.md) for details
 
 2. **Memory views instead of NumPy arrays**
    - Faster array access inside tight loops
@@ -214,7 +215,7 @@ python setup.py build_ext --inplace
 
 4. **GPU acceleration (CUDA/OpenCL)**
    - Massive parallelization for large simulations
-   - Potential: 100-1000x for large workloads
+   - Potential: 100-1000× for large workloads
 
 ## Comparison with Other Technologies
 

@@ -7,13 +7,21 @@ import sys
 # Compiler flags
 extra_compile_args = []
 extra_link_args = []
+openmp_compile_args = []
+openmp_link_args = []
 
 if sys.platform == 'darwin':  # macOS
     extra_compile_args = ['-O3', '-ffast-math']
+    openmp_compile_args = ['-O3', '-ffast-math', '-Xpreprocessor', '-fopenmp']
+    openmp_link_args = ['-lomp']
 elif sys.platform == 'win32':  # Windows
     extra_compile_args = ['/O2']
+    openmp_compile_args = ['/O2', '/openmp']
+    openmp_link_args = []
 else:  # Linux and others
     extra_compile_args = ['-O3', '-ffast-math', '-march=native']
+    openmp_compile_args = ['-O3', '-ffast-math', '-march=native', '-fopenmp']
+    openmp_link_args = ['-fopenmp']
 
 # Define extensions
 extensions = [
@@ -58,6 +66,13 @@ extensions = [
         include_dirs=[np.get_include()],
         extra_compile_args=extra_compile_args,
         extra_link_args=extra_link_args,
+    ),
+    Extension(
+        "cytrim.simulation_parallel",
+        ["cytrim/simulation_parallel.pyx"],
+        include_dirs=[np.get_include()],
+        extra_compile_args=openmp_compile_args,
+        extra_link_args=openmp_link_args,
     ),
 ]
 
