@@ -1,26 +1,52 @@
-# CyTRIM (PyTRIM)
+# CyTRIM (PyTRIM) - Advanced Edition
 
-Eine einfache, gut lesbare Python-Referenzimplementierung von TRIM (Transport of Ions in Matter). Das Programm simuliert den Transport eines Ionenstrahls in ein ebenes Target mittels Monte‑Carlo und liefert u. a. die mittlere Eindringtiefe sowie die Straggling (Standardabweichung) der Stopptiefe der Primärionen.
+Eine professionelle Python-Implementierung von TRIM (Transport of Ions in Matter) mit modernen Features für Forschung und Lehre. Das Programm simuliert den Transport von Ionenstrahlen in komplexe 3D-Geometrien mittels Monte‑Carlo und bietet umfassende Analyse- und Visualisierungsmöglichkeiten.
 
-**Neu:** Moderne PyQt6-Benutzeroberfläche mit Echtzeit-Visualisierung und komfortabler Parametereingabe!
+**Version 2.0 - Advanced Edition:**
+- 🎯 **Erweiterte GUI** mit Material-Presets und dynamischer Geometrie-Auswahl
+- 📊 **10+ Visualisierungen** inklusive Heatmaps, Energie-Verlust, radiale Verteilung
+- 💾 **Multi-Format Export** (CSV, JSON, VTK, PNG) für professionelle Datenanalyse
+- ⚡ **6.4x schneller** mit Cython-Optimierung
 
-**Cython-Optimierung:** Bis zu **6.4x schnellere Simulation** durch kompilierte C-Extensions!
+> **📖 Schnellstart:** Siehe [QUICKSTART.md](QUICKSTART.md) | **🚀 Erweiterte Features:** [ADVANCED_FEATURES.md](ADVANCED_FEATURES.md)
 
-> **📖 Schnellstart:** Siehe [QUICKSTART.md](QUICKSTART.md) für eine detaillierte Schritt-für-Schritt-Anleitung.
+## Kern-Features
 
-## Features
+### Physik & Simulation
+- **Monte-Carlo Ion Transport** mit realistischer Physik
+- **3D Trajektorien-Verfolgung** mit vollständiger Positions-Historie
+- **5 Geometrie-Typen**: Planar, Box, Cylinder, Sphere, MultiLayer
+- **ZBL-Potential** für elastische Streuung
+- **Lindhard Stopping Power** mit Korrektur-Faktor
+- **Recoil-Kaskaden** (in Entwicklung) für Strahlenschäden
 
-- **Grafische Benutzeroberfläche (GUI)** mit PyQt6
-- **Echtzeit-Visualisierung** der Ion-Trajektorien
-- **Interaktive Plots** für Stopptiefe-Verteilungen
-- **Komfortable Parametereingabe** über Eingabefelder
-- **Fortschrittsanzeige** während der Simulation
-- **Datenexport** für weitere Analysen
-- **Cython-Optimierung** für bis zu 6.4x schnellere Berechnungen
-- **Runtime-Umschaltung** zwischen Cython und Python ohne Neustart
-- **Performance-Anzeige** zeigt aktuellen Berechnungsmodus
-- **Automatischer Fallback** auf Pure Python wenn Cython nicht verfügbar
-- Vollständig in Python implementiert (keine Kompilation nötig für Grundfunktion)
+### Benutzeroberfläche
+- **Moderne PyQt6-GUI** mit 10+ Visualisierungs-Tabs
+- **Material-Presets** für Standard-Szenarien (B in Si, As in Si, etc.)
+- **Dynamische Geometrie-Auswahl** mit kontextabhängigen Parametern
+- **Echtzeit-Fortschritt** mit Performance-Anzeige
+- **Interaktive 3D-Plots** mit Rotation und Zoom
+
+### Visualisierung & Analyse
+- **3D Trajektorien** mit Geometrie-Rendering
+- **2D Projektionen** (x-z, y-z) für detaillierte Analyse
+- **Heatmaps** (x-z, y-z, x-y) zur Dichte-Visualisierung
+- **Energie-Verlust Plots** mit gemittelten Profilen
+- **Radiale Verteilung** vs. Tiefe
+- **Stopptiefe-Histogramme** mit Statistiken
+
+### Export & Integration
+- **CSV**: Tabellarische Daten für Excel/Python
+- **JSON**: Strukturierte Daten für Weiterverarbeitung
+- **VTK**: 3D-Visualisierung in ParaView
+- **PNG**: Hochauflösende Plots (300 DPI)
+- **Trajektorien-Export** als Polylines
+
+### Performance
+- **Cython-Optimierung** für bis zu 6.4x Speedup
+- **Runtime-Toggle** zwischen Cython und Python
+- **Automatischer Fallback** auf Pure Python
+- **Performance-Monitoring** im GUI
 
 ## Was macht das Programm?
 
@@ -112,10 +138,21 @@ python setup.py build_ext --inplace
 
 ### GUI-Version (empfohlen)
 
-**Einfachster Start (Linux/Mac):**
+**Standard-GUI:**
 ```bash
 ./run_gui.sh
 ```
+
+**Erweiterte GUI mit allen Features:**
+```bash
+./run_extended_gui.sh
+```
+
+Die erweiterte GUI bietet:
+- 📐 Geometrie-Auswahl (Planar, Box, Cylinder, Sphere, MultiLayer)
+- 🧪 Material-Presets (B in Si, As in Si, etc.)
+- 📊 10+ Visualisierungs-Tabs (Heatmaps, Energie-Verlust, etc.)
+- 💾 Multi-Format Export (CSV, JSON, VTK, PNG)
 
 **Oder manuell:**
 ```bash
@@ -210,6 +247,108 @@ Die Parameter sind im Kopf von `pytrim/pytrim.py` definiert:
 - Energieschwelle zum Abbruch pro Ion (`EMIN`) in `pytrim/trajectory.py` (Standard 5 eV)
 
 ## Beispiel-Szenarien
+
+### Demo-Skript (Alle Features zeigen)
+
+```bash
+python demo_advanced_features.py
+```
+
+Demonstriert:
+1. Material-Presets laden
+2. Verschiedene Geometrien simulieren
+3. Export in alle Formate
+4. Erweiterte Visualisierungen
+
+### GUI Workflow
+
+**Schnellstart mit Preset:**
+1. Erweiterte GUI starten: `./run_extended_gui.sh`
+2. **"Preset laden..."** klicken
+3. "B in Si" auswählen → OK
+4. Ionen-Anzahl anpassen (z.B. 5000)
+5. **"🚀 Simulation starten"**
+6. Nach Abschluss alle Tabs durchsehen
+7. **"💾 Exportieren..."** für Daten-Export
+
+**Custom Geometrie:**
+1. **Geometrie-Tab** öffnen
+2. Typ wählen: z.B. "cylinder"
+3. Parameter eingeben: Radius = 500 Å
+4. **Basis-Parameter Tab**: Material einstellen
+5. Simulation starten
+
+### Beispiel-Code (Python-API)
+
+```python
+from pytrim.simulation import TRIMSimulation, SimulationParameters
+from pytrim.presets import get_preset_manager
+from pytrim import export
+
+# Methode 1: Preset verwenden
+manager = get_preset_manager()
+preset = manager.get_preset("B in Si")
+
+params = SimulationParameters()
+params.nion = 1000
+params.z1 = preset.z1
+params.m1 = preset.m1
+params.z2 = preset.z2
+params.m2 = preset.m2
+params.density = preset.density
+params.e_init = preset.energy
+params.corr_lindhard = preset.corr_lindhard
+params.zmin = preset.zmin
+params.zmax = preset.zmax
+
+# Methode 2: Custom Geometrie
+params.geometry_type = "cylinder"
+params.geometry_params = {'radius': 500, 'axis': 'z'}
+
+# Simulation durchführen
+sim = TRIMSimulation(params)
+results = sim.run(record_trajectories=True, max_trajectories=20)
+
+# Ergebnisse anzeigen
+print(results.get_summary())
+
+# Exportieren
+export.export_to_json(results, "results.json")
+export.export_to_vtk(results, "results.vtk")
+```
+
+### Beispiel-Szenario: Nanowire
+
+**Ziel**: Phosphor-Implantation in Silizium-Nanowire
+
+```python
+params = SimulationParameters()
+params.nion = 2000
+
+# Material (P in Si)
+params.z1, params.m1 = 15, 30.974  # P
+params.z2, params.m2 = 14, 28.086  # Si
+params.density = 0.04994
+params.corr_lindhard = 1.5
+
+# Geometrie (Zylindrischer Nanowire)
+params.geometry_type = "cylinder"
+params.geometry_params = {'radius': 50, 'axis': 'z'}
+params.zmin, params.zmax = 0, 3000
+
+# Strahl
+params.e_init = 60000  # 60 keV
+params.z_init = 0
+params.dir_z = 1.0
+
+# Simulieren
+sim = TRIMSimulation(params)
+results = sim.run(record_trajectories=True)
+
+# Analyse: Wie viele Ionen treffen den Nanowire?
+print(f"Im Wire gestoppt: {results.stopped}/{results.nion}")
+print(f"Radiale Streuung: {results.mean_r:.1f} ± {results.std_r:.1f} Å")
+```
 
 ### Standard: Bor in Silizium
 - Projektil: B (Z=5, M=11.009 amu)
