@@ -1,133 +1,133 @@
 # Cython Toggle Feature
 
-## Übersicht
+## Overview
 
-Die neue Toggle-Funktion ermöglicht es Benutzern, zur Laufzeit zwischen Cython-optimierten und Python-Modulen zu wechseln, ohne die Anwendung neu zu starten.
+The toggle feature lets users switch between Cython-optimized and pure Python modules at runtime without restarting the application.
 
 ## Funktionen
 
-### 1. Performance-Status-Anzeige
-- **⚡ Cython aktiviert** (Grün): Cython-Module werden verwendet (~6.4x schneller)
-- **🐍 Python Modus** (Orange): Python-Module werden verwendet
+### 1. Performance status display
+- **⚡ Cython enabled** (green): Cython modules are active (~6.4× faster)
+- **🐍 Python mode** (orange): Python modules are active
 
-### 2. Cython-Toggle Checkbox
-- Ermöglicht das Umschalten zwischen Cython und Python
-- Zeigt Tooltip mit Performance-Informationen
-- Wird während laufender Simulationen automatisch deaktiviert
+### 2. Cython toggle checkbox
+- Switches between Cython and Python modules
+- Shows a tooltip with performance information
+- Automatically disabled while simulations are running
 
-### 3. Dynamisches Modul-Neuladen
-- Module werden zur Laufzeit gewechselt
-- Warnung bei bestehendem Simulationsergebnis
-- Automatische Validierung der Cython-Availablekeit
+### 3. Dynamic module reload
+- Swaps modules at runtime
+- Warns if a simulation result is already present
+- Automatically validates Cython availability
 
 ## Verwendung
 
-### Im GUI
-1. Starte die Anwendung: `python pytrim_gui.py`
-2. Finde die Performance-Anzeige im linken Panel
-3. Aktiviere/Deaktiviere die Checkbox "Cython verwenden"
-4. Bestätige die Warnung zum Neuladen der Module
-5. Neue Simulationen verwenden nun die gewählten Module
+### In the GUI
+1. Start the application with `python pytrim_gui.py`
+2. Locate the performance indicator on the left panel
+3. Enable or disable the "Use Cython" checkbox
+4. Confirm the warning about reloading modules
+5. New simulations will run with the selected modules
 
 ### Programmatisch
 
 ```python
 from pytrim import is_cython_available, set_use_cython, is_using_cython
 
-# Prüfe, ob Cython available ist
+# Check whether Cython modules are available
 if is_cython_available():
-    print("Cython-Module sind kompiliert und available")
+    print("Cython modules are compiled and available")
 
-# Wechsle zu Cython
+# Switch to Cython
 success = set_use_cython(True)
 if success:
-    print("Erfolgreich zu Cython gewechselt")
+    print("Successfully switched to Cython")
 
-# Prüfe aktuellen Status
+# Check the current mode
 if is_using_cython():
-    print("Nutze Cython-Module")
+    print("Using Cython modules")
 else:
-    print("Nutze Python-Module")
+    print("Using Python modules")
 ```
 
 ## Technical Details
 
-### Module System
-- **Dynamisches Laden**: Module werden zur Laufzeit aus `cytrim.*` oder `pytrim.*` importiert
-- **Globale Referenzen**: Alle Module werden als globale Variablen gespeichert
-- **Fallback-Mechanismus**: Automatischer Fallback zu Python bei Cython-Fehlern
+### Module system
+- **Dynamic loading**: Modules are imported at runtime from `cytrim.*` or `pytrim.*`
+- **Global references**: Modules are stored as global variables
+- **Fallback mechanism**: Automatic fallback to Python if Cython raises errors
 
-### Betroffene Module
-- `estop` - Electronic stopping power
-- `scatter` - Scattering calculations
-- `geometry` - Geometric utilities
-- `select_recoil` - Recoil selection
-- `trajectory` - Trajectory calculation
+### Affected modules
+- `estop` – electronic stopping power
+- `scatter` – scattering calculations
+- `geometry` – geometric utilities
+- `select_recoil` – recoil selection
+- `trajectory` – trajectory calculation
 
-### GUI Integration
-- Toggle wird während Simulationen deaktiviert
-- Status-Label aktualisiert sich automatisch
-- Bestätigungsdialog bei bestehendem Result
-- Fehlermeldung bei nicht availableem Cython
+### GUI integration
+- Toggle is disabled while simulations run
+- Status label updates automatically
+- Confirmation dialog appears when a result is already present
+- Error message surfaces when Cython is unavailable
 
 ## Performance
 
-### Benchmark-Resultse (500 Ionen)
-- **Cython**: 2.2 Sekunden (~226 Ionen/Sekunde)
-- **Python**: 14.2 Sekunden (~35 Ionen/Sekunde)
-- **Speedup**: 6.4x
+### Benchmark results (500 ions)
+- **Cython**: 2.2 seconds (~226 ions per second)
+- **Python**: 14.2 seconds (~35 ions per second)
+- **Speedup**: 6.4×
 
-### Wann Cython verwenden?
-✅ **Große Simulationen** (>100 Ionen)
-✅ **Produktionsläufe** mit vielen Wiederholungen
-✅ **Parametersstudien** mit vielen Konfigurationen
+### When to prefer Cython
+✅ **Large simulations** (>100 ions)
+✅ **Production runs** with many iterations
+✅ **Parameter sweeps** with numerous configurations
 
-### Wann Python verwenden?
-✅ **Debugging** mit detaillierten Stack Traces
-✅ **Entwicklung** ohne Neucompilierung
-✅ **Kleine Tests** (<50 Ionen)
+### When to prefer Python
+✅ **Debugging** with detailed stack traces
+✅ **Development** without recompilation
+✅ **Small tests** (<50 ions)
 
 ## Troubleshooting
 
-### Cython nicht available
+### Cython unavailable
 ```bash
-# Kompiliere Cython-Module
+# Compile the Cython modules
 ./build_cython.sh
 
-# Prüfe Installation
+# Verify the installation
 python -c "from pytrim import is_cython_available; print(is_cython_available())"
 ```
 
-### Module werden nicht geladen
+### Modules fail to load
 ```bash
-# Bereinige Build-Artefakte
+# Remove build artifacts
 ./build_cython.sh clean
 
-# Neucompilierung
+# Recompile modules
 ./build_cython.sh
 ```
 
-### Toggle funktioniert nicht
-1. Prüfe, ob Simulation läuft (Toggle ist dann deaktiviert)
-2. Check Cython availability mit `is_cython_available()`
-3. Prüfe Konsolen-Output für Fehler
+### Toggle does not respond
+1. Ensure no simulation is running (the toggle is disabled while active)
+2. Inspect Cython availability with `is_cython_available()`
+3. Check the console output for errors
 
 ## Implementierungsdetails
 
-### Dateien
-- `pytrim/simulation.py`: Dynamisches Modul-System
-- `pytrim_gui.py`: GUI-Integration (Toggle, Status-Anzeige)
-- `pytrim/__init__.py`: API-Export
+### Files
+- `pytrim/simulation.py`: dynamic module system
+- `pytrim_gui.py`: GUI integration (toggle, status display)
+- `pytrim/__init__.py`: API exports
 
-### Neue API-Funktionen
+### New API helpers
 ```python
-# In pytrim/__init__.py exportiert:
+# Exported in pytrim/__init__.py:
 is_cython_available() -> bool
 is_using_cython() -> bool
 set_use_cython(use_cython: bool) -> bool
 ```
 
-### GUI-Methoden
+### GUI methods
 ```python
 class MainWindow:
     def update_performance_label(self) -> None
@@ -136,16 +136,16 @@ class MainWindow:
 
 ## Future Extensions
 
-- [ ] Automatische Performance-Messung für Empfehlung
-- [ ] Persistente Speicherung der Toggle-Einstellung
-- [ ] Batch-Modus für automatische Cython-Auswahl
-- [ ] Performance-Vergleichs-Tool
+- [ ] Automatic performance measurements for recommendations
+- [ ] Persistent storage of the toggle preference
+- [ ] Batch mode for automatic Cython selection
+- [ ] Performance comparison tool
 
 ## Changelog
 
-### v1.0 - Initial Implementation
-- Dynamisches Modul-System implementiert
-- GUI-Toggle mit Checkbox hinzugefügt
-- Performance-Status-Anzeige erstellt
-- Bestätigungsdialoge für Benutzersicherheit
-- Automatische Deaktivierung während Simulationen
+### v1.0 – Initial implementation
+- Implemented dynamic module system
+- Added GUI toggle with checkbox
+- Built performance status indicator
+- Added confirmation dialogs for safety
+- Automatically disable toggle while simulations run
